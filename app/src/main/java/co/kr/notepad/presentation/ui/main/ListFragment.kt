@@ -2,6 +2,8 @@ package co.kr.notepad.presentation.ui.main
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentListBinding
 import co.kr.notepad.presentation.ui.adapter.MemoAdapter
@@ -16,6 +18,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
+        initOnClickListener()
     }
 
     override fun onDestroyView() {
@@ -26,6 +29,17 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     private fun initView() {
         _memoAdapter = MemoAdapter()
         binding.rvMemo.adapter = memoAdapter
+    }
+
+    private fun initOnClickListener() {
+        with(binding) {
+            fabAdd.setOnClickListener {
+                parentFragmentManager.commit {
+                    replace<WriteFragment>(R.id.fcv_main)
+                    addToBackStack(null)
+                }
+            }
+        }
     }
 
     companion object {
