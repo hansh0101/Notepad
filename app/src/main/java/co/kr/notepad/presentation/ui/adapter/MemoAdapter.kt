@@ -15,7 +15,7 @@ class MemoAdapter : RecyclerView.Adapter<MemoAdapter.MemoViewHolder>() {
     class MemoViewHolder(private val binding: ItemMemoBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun onBind(item: Memo) {
-            binding.tvTitle.text = item.title
+            binding.tvTitle.text = item.text
             binding.tvDate.text = item.date.toDateString()
         }
 

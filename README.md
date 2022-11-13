@@ -6,7 +6,7 @@
 
 ### Tech Stack
 
-- Minumum SDK 26
+- Minimum SDK 26
 - Kotlin
 - Android Room
 - Dagger-Hilt
@@ -16,7 +16,7 @@
 
 
 ### How to build - Release Link
-Go to [Release](), download App.apk, and run the app.
+(TODO)
 
 
 ### Package
@@ -34,9 +34,9 @@ Go to [Release](), download App.apk, and run the app.
 ┃ ┣ 📂repository
 ┃ ┗ 📂usecase
 ┣ 📂presentaion
-┃ ┣ 📂adapter
-┃ ┣ 📂application
-┃ ┣ 📂ui
-┃ ┗ 📂viewmodel
+┃ ┣ 📂di
+┃ ┗ 📂ui
+┃   ┣ 📂adapter
+┃   ┗ 📂view
 ┗ 📂util
 ```

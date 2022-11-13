@@ -1,7 +1,7 @@
 package co.kr.notepad.domain.entity
 
 data class Memo(
-    val id: Long,
-    val title: String,
+    val id: Long = 0,
+    val text: String,
     val date: Long
 )
