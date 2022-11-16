@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import co.kr.notepad.domain.entity.Memo
 import co.kr.notepad.domain.usecase.InsertMemoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,15 +20,9 @@ class WriteViewModel @Inject constructor(
     fun insert(text: String) {
         viewModelScope.launch {
             val memo = Memo(text = text, date = System.currentTimeMillis())
-            runCatching {
-                withContext(Dispatchers.IO) {
-                    insertMemoUseCase(memo)
-                }
-            }.onSuccess {
-                _isSaved.value = true
-            }.onFailure {
-                _isSaved.value = false
-            }
+            insertMemoUseCase(memo)
+                .onSuccess { _isSaved.value = true }
+                .onFailure { _isSaved.value = false }
         }
     }
 }

@@ -16,6 +16,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class ListFragment : BaseFragment<FragmentListBinding>() {
     override val layoutRes: Int
         get() = R.layout.fragment_list
+    override val TAG: String
+        get() = this::class.java.simpleName
     private val listViewModel by viewModels<ListViewModel>()
     private var _memoAdapter: MemoAdapter? = null
     private val memoAdapter get() = _memoAdapter ?: error("adapter not initialized")
@@ -24,6 +26,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initOnClickListener()
+        loadData()
         observeData()
     }
 
@@ -33,8 +36,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun initView() {
-        _memoAdapter = MemoAdapter()
-        binding.rvMemo.adapter = memoAdapter
+        initRecyclerView()
     }
 
     private fun initOnClickListener() {
@@ -48,10 +50,19 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         }
     }
 
+    private fun loadData() {
+        listViewModel.getAll()
+    }
+
     private fun observeData() {
         listViewModel.memos.observe(viewLifecycleOwner) {
             memoAdapter.updateList(it)
         }
+    }
+
+    private fun initRecyclerView() {
+        _memoAdapter = MemoAdapter()
+        binding.rvMemo.adapter = memoAdapter
     }
 
     companion object {

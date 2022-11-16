@@ -35,3 +35,15 @@
   > data class의 val 변수에 기본 값을 부여하는 부분에 대해 학습이 필요하다고 느꼈다. 메모의 id를 auto increment 속성을 활용해보려고 했는데 헤맸다. val 변수라서 0이라는 기본값을 부여했는데, Room Database에는 auto increment에 의해 0이 아닌 다른 값이 들어간다. 이 부분에 대해 추가적인 학습이 필요하다고 생각한다.
   
   > 지금은 Flow를 활용해 Room Database의 테이블이 갱신되면 자동으로 이를 반영하게 할 수 있지만, Flow가 없던 시절에는 어떤 방식으로 데이터의 갱신을 인식할 수 있었을지 고민해보고 구현한 뒤 Flow를 적용하면 좋겠다고 생각해 남겨두었다.
+
+### 2022.11.16
+- 메모 목록 업데이트 로직 구현
+- LifecycleObserver 추가
+- CoroutineDispatcher 의존성 주입 구현
+- UseCase 리턴 타입 T -> Result<T>로 수정
+- 회고
+  > Fragment가 Activity에 비해 생명 주기가 복잡하다고 느꼈다. ViewPager2에서의 Fragment 생명 주기, Fragment Transaction 간 Fragment 생명 주기가 다른 것 같아 좀 헷갈리는 것 같다. 한 번 정리할 필요가 있어 보인다.
+  
+  > CoroutineDispatcher도 주입받아서 사용하는게 좋다고 어디서 본 적이 있는데, 왜 그게 좋은건지 이유를 알고 쓰는 것 같지 않다.
+  
+  > NotepadLifecycleObserver 객체를 주입받아서 BaseActivity, BaseFragment에서 사용하려고 했는데 실패했다. 이 이유에 대해 알아봐야 할 것 같다.

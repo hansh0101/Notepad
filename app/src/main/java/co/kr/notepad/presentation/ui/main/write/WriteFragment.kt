@@ -18,6 +18,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     override val layoutRes: Int
         get() = R.layout.fragment_write
+    override val TAG: String
+        get() = this::class.java.simpleName
     private val writeViewModel by viewModels<WriteViewModel>()
     private val menuProvider = (object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
