@@ -9,32 +9,44 @@ import co.kr.notepad.databinding.ItemMemoBinding
 import co.kr.notepad.domain.entity.Memo
 import co.kr.notepad.util.toDateString
 
-class MemoAdapter(private val onItemClick: (Long) -> Unit) :
+class MemoAdapter(
+    private val onItemClick: (Long) -> Unit,
+    private val onItemLongClick: (Memo) -> Unit
+) :
     RecyclerView.Adapter<MemoAdapter.MemoViewHolder>() {
     private val itemList = AsyncListDiffer(this, diffCallback)
 
     class MemoViewHolder(
         private val binding: ItemMemoBinding,
-        private val onItemClick: (Long) -> Unit
+        private val onItemClick: (Long) -> Unit,
+        private val onItemLongClick: (Memo) -> Unit
     ) :
         RecyclerView.ViewHolder(binding.root) {
         fun onBind(item: Memo) {
             binding.tvTitle.text = item.text
             binding.tvDate.text = item.date.toDateString()
             binding.root.setOnClickListener { onItemClick(item.id) }
+            binding.root.setOnLongClickListener {
+                onItemLongClick(item)
+                true
+            }
         }
 
         companion object {
-            fun create(parent: ViewGroup, onItemClick: (Long) -> Unit): MemoViewHolder {
+            fun create(
+                parent: ViewGroup,
+                onItemClick: (Long) -> Unit,
+                onItemLongClick: (Memo) -> Unit
+            ): MemoViewHolder {
                 val binding =
                     ItemMemoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                return MemoViewHolder(binding, onItemClick)
+                return MemoViewHolder(binding, onItemClick, onItemLongClick)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemoViewHolder {
-        return MemoViewHolder.create(parent, onItemClick)
+        return MemoViewHolder.create(parent, onItemClick, onItemLongClick)
     }
 
     override fun onBindViewHolder(holder: MemoViewHolder, position: Int) {

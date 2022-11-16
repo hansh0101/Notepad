@@ -25,4 +25,8 @@ class MemoRepositoryImpl @Inject constructor(
     override suspend fun getMemo(memoId: Long): Memo {
         return memoDataSource.getMemo(memoId)
     }
+
+    override suspend fun delete(memo: Memo) {
+        memoDataSource.delete(memo)
+    }
 }

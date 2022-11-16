@@ -1,9 +1,6 @@
 package co.kr.notepad.data.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import co.kr.notepad.data.model.MemoDto
 
 @Dao
@@ -19,4 +16,7 @@ interface MemoDao {
 
     @Update
     suspend fun update(memo: MemoDto): Int
+
+    @Delete
+    suspend fun delete(memo: MemoDto): Int
 }

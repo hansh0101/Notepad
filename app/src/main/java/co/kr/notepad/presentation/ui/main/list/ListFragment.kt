@@ -1,5 +1,6 @@
 package co.kr.notepad.presentation.ui.main.list
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.commit
@@ -60,12 +61,19 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun initRecyclerView() {
-        _memoAdapter = MemoAdapter {
+        _memoAdapter = MemoAdapter({
             parentFragmentManager.commit {
                 replace(R.id.fcv_main, WriteFragment.newInstance(it))
                 addToBackStack(null)
             }
-        }
+        }, {
+            AlertDialog.Builder(requireContext())
+                .setMessage("Are you sure you want to erase the memo?")
+                .setTitle("Erase the memo")
+                .setPositiveButton("YES") { _, _ -> listViewModel.delete(it) }
+                .setNegativeButton("NO") { _, _ -> }
+                .show()
+        })
         binding.rvMemo.adapter = memoAdapter
     }
 
