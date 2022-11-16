@@ -21,4 +21,18 @@ class MemoDataSourceImpl @Inject constructor(
     override suspend fun getAll(): List<Memo> {
         return memoDao.getAll().map { it.toMemo() }
     }
+
+    override suspend fun getMemo(memoId: Long): Memo {
+        return memoDao.getMemo(memoId).toMemo()
+    }
+
+    override suspend fun update(memo: Memo): Int {
+        return memoDao.update(
+            MemoDto(
+                memo.id,
+                memo.text,
+                memo.date
+            )
+        )
+    }
 }

@@ -29,17 +29,27 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
             return when (menuItem.itemId) {
                 R.id.menu_save -> {
-                    writeViewModel.insert(binding.editTextField.text.toString())
+                    writeViewModel.insertOrUpdate(
+                        memoId = memoId,
+                        text = binding.editTextField.text.toString()
+                    )
                     true
                 }
                 else -> false
             }
         }
     })
+    private var memoId: Long = 0L
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        memoId = arguments?.getLong(MEMO_ID) ?: 0L
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
+        loadData()
         observeData()
     }
 
@@ -52,12 +62,21 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         initToolbar()
     }
 
+    private fun loadData() {
+        writeViewModel.getMemo(memoId)
+    }
+
     private fun observeData() {
-        writeViewModel.isSaved.observe(viewLifecycleOwner) {
-            if (it) {
-                parentFragmentManager.popBackStack()
-            } else {
-                Toast.makeText(requireContext(), "Not saved", Toast.LENGTH_SHORT).show()
+        with(writeViewModel) {
+            isSaved.observe(viewLifecycleOwner) {
+                if (it) {
+                    parentFragmentManager.popBackStack()
+                } else {
+                    Toast.makeText(requireContext(), "Not saved", Toast.LENGTH_SHORT).show()
+                }
+            }
+            memo.observe(viewLifecycleOwner) {
+                binding.editTextField.setText(it.text)
             }
         }
     }
@@ -71,6 +90,9 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     }
 
     companion object {
-        fun newInstance() = WriteFragment
+        private const val MEMO_ID = "MEMO_ID"
+        fun newInstance(memoId: Long = 0L) = WriteFragment().apply {
+            arguments = Bundle().apply { putLong(MEMO_ID, memoId) }
+        }
     }
 }
