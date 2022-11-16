@@ -7,14 +7,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class InsertMemoUseCase @Inject constructor(
+class InsertOrUpdateMemoUseCase @Inject constructor(
     private val memoRepository: MemoRepository,
     @IoDispatcher private val coroutineDispatcher: CoroutineDispatcher
 ) {
     suspend operator fun invoke(memo: Memo): Result<Unit> =
         runCatching {
             withContext(coroutineDispatcher) {
-                memoRepository.insert(memo)
+                memoRepository.insertOrUpdate(memo)
             }
         }
 }

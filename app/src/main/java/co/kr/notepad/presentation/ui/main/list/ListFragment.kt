@@ -3,7 +3,6 @@ package co.kr.notepad.presentation.ui.main.list
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentListBinding
@@ -43,7 +42,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         with(binding) {
             fabAdd.setOnClickListener {
                 parentFragmentManager.commit {
-                    replace<WriteFragment>(R.id.fcv_main)
+                    replace(R.id.fcv_main, WriteFragment.newInstance())
                     addToBackStack(null)
                 }
             }
@@ -61,7 +60,12 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun initRecyclerView() {
-        _memoAdapter = MemoAdapter()
+        _memoAdapter = MemoAdapter {
+            parentFragmentManager.commit {
+                replace(R.id.fcv_main, WriteFragment.newInstance(it))
+                addToBackStack(null)
+            }
+        }
         binding.rvMemo.adapter = memoAdapter
     }
 

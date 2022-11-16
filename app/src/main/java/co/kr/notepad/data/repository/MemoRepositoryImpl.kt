@@ -8,11 +8,21 @@ import javax.inject.Inject
 class MemoRepositoryImpl @Inject constructor(
     private val memoDataSource: MemoDataSource
 ) : MemoRepository {
-    override suspend fun insert(memo: Memo) {
-        memoDataSource.insert(memo)
+    override suspend fun insertOrUpdate(memo: Memo) {
+        if (memo.id == 0L) {
+            memoDataSource.insert(memo)
+        } else if (memo.id > 0L) {
+            memoDataSource.update(memo)
+        } else {
+            throw IllegalArgumentException("Invalid memoId")
+        }
     }
 
     override suspend fun getAll(): List<Memo> {
         return memoDataSource.getAll()
+    }
+
+    override suspend fun getMemo(memoId: Long): Memo {
+        return memoDataSource.getMemo(memoId)
     }
 }

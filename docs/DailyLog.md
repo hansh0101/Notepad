@@ -47,3 +47,8 @@
   > CoroutineDispatcher도 주입받아서 사용하는게 좋다고 어디서 본 적이 있는데, 왜 그게 좋은건지 이유를 알고 쓰는 것 같지 않다.
   
   > NotepadLifecycleObserver 객체를 주입받아서 BaseActivity, BaseFragment에서 사용하려고 했는데 실패했다. 이 이유에 대해 알아봐야 할 것 같다.
+
+- 작성된 메모 조회 & 업데이트 로직 구현
+- insert, update UseCase 통합
+- 회고
+  > memoId가 0이면 insert, 0이 아니라면 update하도록 로직을 작성했다. memoId에 따라 분기처리 되기 때문에 이를 ViewModel에서 하는 것보다 UseCase, 혹은 그 안쪽에서 처리하면 좋겠다고 생각했는데, 이 과정에서 단일 책임이란 무엇인가에 대해 생각해보게 되었다. insert, update를 각각 하나의 책임으로 본다면 InsertOrUpdateUseCase는 2개의 책임을 하는 클래스인가 하는 고민이 든다. 지금은 memoId로 분기처리하는 것을 Repository 구현체에서 수행하는데, 이 구조가 맞는지 더 고민해보면 좋을 것 같다.

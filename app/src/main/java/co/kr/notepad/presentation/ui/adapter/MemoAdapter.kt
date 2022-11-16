@@ -9,27 +9,32 @@ import co.kr.notepad.databinding.ItemMemoBinding
 import co.kr.notepad.domain.entity.Memo
 import co.kr.notepad.util.toDateString
 
-class MemoAdapter : RecyclerView.Adapter<MemoAdapter.MemoViewHolder>() {
+class MemoAdapter(private val onItemClick: (Long) -> Unit) :
+    RecyclerView.Adapter<MemoAdapter.MemoViewHolder>() {
     private val itemList = AsyncListDiffer(this, diffCallback)
 
-    class MemoViewHolder(private val binding: ItemMemoBinding) :
+    class MemoViewHolder(
+        private val binding: ItemMemoBinding,
+        private val onItemClick: (Long) -> Unit
+    ) :
         RecyclerView.ViewHolder(binding.root) {
         fun onBind(item: Memo) {
             binding.tvTitle.text = item.text
             binding.tvDate.text = item.date.toDateString()
+            binding.root.setOnClickListener { onItemClick(item.id) }
         }
 
         companion object {
-            fun create(parent: ViewGroup): MemoViewHolder {
+            fun create(parent: ViewGroup, onItemClick: (Long) -> Unit): MemoViewHolder {
                 val binding =
                     ItemMemoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                return MemoViewHolder(binding)
+                return MemoViewHolder(binding, onItemClick)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemoViewHolder {
-        return MemoViewHolder.create(parent)
+        return MemoViewHolder.create(parent, onItemClick)
     }
 
     override fun onBindViewHolder(holder: MemoViewHolder, position: Int) {
