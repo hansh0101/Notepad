@@ -7,4 +7,5 @@ interface MemoDataSource {
     suspend fun getAll(): List<Memo>
     suspend fun getMemo(memoId: Long): Memo
     suspend fun update(memo: Memo): Int
+    suspend fun delete(memo: Memo): Int
 }
