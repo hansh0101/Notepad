@@ -256,4 +256,7 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 
+### Notepad Keystore ###
+notepad_keystore
+
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio,macos,windows,kotlin,java
