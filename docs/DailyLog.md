@@ -57,3 +57,6 @@
 - 메모 삭제 로직 구현
 - 회고
   > 메모 삭제 시 DAO에서 @Delete 어노테이션을 사용했는데, DTO 객체를 직접 넘기는 샘플 코드를 참고했다. 그런데 이 샘플 코드의 경우 Primary Key 값을 활용해 삭제를 수행한다고 했는데, 그러면 DTO 객체를 직접 전달하는 것보다 키 값 리스트를 전달하는게 낫지 않을까 하는 생각이 들었다. @Delete 어노테이션을 활용하면 어떤 식으로 동작하는지 정확히 알고 사용하면 더 좋을 것 같다는 생각이 든다.
+- Configuration change 대응 로직 구현
+- 회고
+  > 기기 회전 등의 이유로 Configuration change가 발생하면, Activity는 onDestroy()를 실행한 후 onCreate()를 호출해 새 인스턴스를 만든다. 이 과정으로 인해 WriteFragment를 표시한 상태에서 기기를 회전할 경우 ListFragment로 보여지는 문제가 있었다. 이 과정에서 내가 분석한 문제점은, 첫째로 MainActivity의 onCreate() 내부에 FragmentManager를 사용해 replace를 호출한 것이 첫 번째 원인이라고 생각했다. 그래서 add로 변경한 후 다시 테스트했는데, 이번에는 두 Fragment가 겹쳐 보였다. 이를 통해 WriteFragment는 기기를 회전한다고 해서 소멸되는 것이 아니라는 것까지 알 수 있었고, 다음 과정으로는 MainActivity에서 FragmentManager의 transaction 이전에 backstack size를 검사하도록 구현했다. 일단은 이 방법으로 해결은 했는데, FragmentManager가 Configuration change 시에 어떤 방식으로 상태를 보존하는지 공부할 필요성을 느끼게 되었다.

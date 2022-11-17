@@ -1,8 +1,8 @@
 package co.kr.notepad.presentation.ui.main
 
 import android.os.Bundle
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import co.kr.notepad.R
 import co.kr.notepad.databinding.ActivityMainBinding
 import co.kr.notepad.presentation.ui.base.BaseActivity
@@ -20,8 +20,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     private fun initView() {
-        supportFragmentManager.commit {
-            replace<ListFragment>(R.id.fcv_main)
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            supportFragmentManager.commit {
+                add<ListFragment>(R.id.fcv_main)
+            }
         }
     }
 }
