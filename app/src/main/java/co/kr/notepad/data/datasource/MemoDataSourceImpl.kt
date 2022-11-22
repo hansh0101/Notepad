@@ -36,13 +36,15 @@ class MemoDataSourceImpl @Inject constructor(
         )
     }
 
-    override suspend fun delete(memo: Memo): Int {
+    override suspend fun delete(memos: List<Memo>): Int {
         return memoDao.delete(
-            MemoDto(
-                memo.id,
-                memo.text,
-                memo.date
-            )
+            *(memos.map {
+                MemoDto(
+                    it.id,
+                    it.text,
+                    it.date
+                )
+            }).toTypedArray()
         )
     }
 }

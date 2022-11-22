@@ -11,10 +11,10 @@ class DeleteMemoUseCase @Inject constructor(
     private val memoRepository: MemoRepository,
     @IoDispatcher private val coroutineDispatcher: CoroutineDispatcher
 ) {
-    suspend operator fun invoke(memo: Memo) =
+    suspend operator fun invoke(memos: List<Memo>) =
         runCatching {
             withContext(coroutineDispatcher) {
-                memoRepository.delete(memo)
+                memoRepository.delete(memos)
             }
         }
 }

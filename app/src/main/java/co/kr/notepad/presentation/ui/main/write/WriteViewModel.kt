@@ -17,9 +17,9 @@ class WriteViewModel @Inject constructor(
     private val insertOrUpdateMemoUseCase: InsertOrUpdateMemoUseCase,
     private val getMemoUseCase: GetMemoUseCase
 ) : ViewModel() {
-    private var _memo = MutableLiveData<Memo>()
+    private val _memo = MutableLiveData<Memo>()
     val memo: LiveData<Memo> get() = _memo
-    private var _isSaved = MutableLiveData<Boolean>()
+    private val _isSaved = MutableLiveData<Boolean>()
     val isSaved: LiveData<Boolean> get() = _isSaved
 
     fun insertOrUpdate(memoId: Long, text: String) {

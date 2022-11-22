@@ -26,7 +26,7 @@ class MemoRepositoryImpl @Inject constructor(
         return memoDataSource.getMemo(memoId)
     }
 
-    override suspend fun delete(memo: Memo) {
-        memoDataSource.delete(memo)
+    override suspend fun delete(memos: List<Memo>) {
+        memoDataSource.delete(memos)
     }
 }

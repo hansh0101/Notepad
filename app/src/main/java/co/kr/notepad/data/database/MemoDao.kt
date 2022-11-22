@@ -18,5 +18,5 @@ interface MemoDao {
     suspend fun update(memo: MemoDto): Int
 
     @Delete
-    suspend fun delete(memo: MemoDto): Int
+    suspend fun delete(vararg memo: MemoDto): Int
 }
