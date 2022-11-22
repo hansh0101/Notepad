@@ -16,7 +16,7 @@
 
 
 ### How to build - Release Link
-(TODO)
+Go to [Release](https://github.com/hansh0101/Notepad/releases), download App.apk, and run the app.
 
 
 ### Package
