@@ -20,6 +20,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         get() = R.layout.fragment_write
     override val TAG: String
         get() = this::class.java.simpleName
+
     private val writeViewModel by viewModels<WriteViewModel>()
     private val menuProvider = (object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

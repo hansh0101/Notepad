@@ -16,13 +16,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initView()
+        if (savedInstanceState == null) {
+            initView()
+        }
     }
 
     private fun initView() {
-        if (supportFragmentManager.backStackEntryCount == 0) {
-            supportFragmentManager.commit {
-                add<ListFragment>(R.id.fcv_main)
+        when (supportFragmentManager.backStackEntryCount) {
+            0 -> {
+                supportFragmentManager.commit {
+                    add<ListFragment>(R.id.fcv_main)
+                }
+            }
+            else -> {
+
             }
         }
     }

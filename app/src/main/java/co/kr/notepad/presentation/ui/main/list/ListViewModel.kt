@@ -17,8 +17,11 @@ class ListViewModel @Inject constructor(
     private val getAllMemoUseCase: GetAllMemoUseCase,
     private val deleteMemoUseCase: DeleteMemoUseCase
 ) : ViewModel() {
-    private var _memos = MutableLiveData<List<Memo>>()
+    private val _memos = MutableLiveData<List<Memo>>()
     val memos: LiveData<List<Memo>> get() = _memos
+    private val selectedList = mutableListOf<Memo>()
+    private val _selectedMemos = MutableLiveData<List<Memo>>(selectedList)
+    val selectedMemos: LiveData<List<Memo>> get() = _selectedMemos
 
     fun getAll() {
         viewModelScope.launch {
@@ -28,11 +31,23 @@ class ListViewModel @Inject constructor(
         }
     }
 
-    fun delete(memo: Memo) {
+    fun delete() {
         viewModelScope.launch {
-            deleteMemoUseCase(memo)
-                .onSuccess { getAll() }
-                .onFailure { Timber.e(it) }
+            deleteMemoUseCase(selectedList.toList())
+                .onSuccess {
+                    getAll()
+                    selectedList.clear()
+                    _selectedMemos.value = selectedList
+                }.onFailure { Timber.e(it) }
         }
+    }
+
+    fun updateSelectedMemos(memo: Memo) {
+        if (selectedList.contains(memo)) {
+            selectedList.remove(memo)
+        } else {
+            selectedList.add(memo)
+        }
+        _selectedMemos.value = selectedList
     }
 }

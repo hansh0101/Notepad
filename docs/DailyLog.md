@@ -60,3 +60,12 @@
 - Configuration change 대응 로직 구현
 - 회고
   > 기기 회전 등의 이유로 Configuration change가 발생하면, Activity는 onDestroy()를 실행한 후 onCreate()를 호출해 새 인스턴스를 만든다. 이 과정으로 인해 WriteFragment를 표시한 상태에서 기기를 회전할 경우 ListFragment로 보여지는 문제가 있었다. 이 과정에서 내가 분석한 문제점은, 첫째로 MainActivity의 onCreate() 내부에 FragmentManager를 사용해 replace를 호출한 것이 첫 번째 원인이라고 생각했다. 그래서 add로 변경한 후 다시 테스트했는데, 이번에는 두 Fragment가 겹쳐 보였다. 이를 통해 WriteFragment는 기기를 회전한다고 해서 소멸되는 것이 아니라는 것까지 알 수 있었고, 다음 과정으로는 MainActivity에서 FragmentManager의 transaction 이전에 backstack size를 검사하도록 구현했다. 일단은 이 방법으로 해결은 했는데, FragmentManager가 Configuration change 시에 어떤 방식으로 상태를 보존하는지 공부할 필요성을 느끼게 되었다.
+
+### 2022.11.22
+- 메모 다중 삭제 기능 구현
+- 회고
+  > 이 기능 하나를 위해 며칠간 고민을 많이 했다. selectedItems를 ViewModel이 관리해야 하는지, Adapter가 관리해야 하는지부터, UI를 어떻게 갱신해야 하는지까지 다양하게 고민을 한 것 같다. onBindViewHolder에서 payloads를 활용하는 방식에 대해서도 간단히 알아보기도 했고, 평소 잘 알고 있다고 생각했던 ViewHolder에 대해서도 스스로 반성하기도 했다. 특히 RecyclerView는 ViewHolder가 재사용된다는 특징이 있다는 것을 알고 있었음에도 불구하고 이를 까먹어서 ViewHolder에서 이전에 background 색상을 변경해놔서 스크롤 시 변경된 ViewHolder background 색상을 보기도 했다. 사실 지금의 코드(Adapter와 ViewHolder 둘 다 selectedItems를 보유하는 방식 - observe를 통한 동기화)가 옳은지 잘 모르겠다. 하지만 정말 고민을 많이 한 만큼, 이 부분에 대해 블로그로 포스팅하면서 주변 지인들에게 피드백을 구해봐야겠다고 생각했다.
+  
+  > 또, MenuProvider가 중복으로 add되는 현상에 대해서도 처리해줘야 했다. 나는 이 경우 View에 isMenuProviderAdded와 같은 변수를 두어 해결하긴 했는데, 이를 더 매끄러운 코드로 구현할 방법이 있는지 알아보면 좋을 것 같다.
+
+  > 원래 지난 주말에 회고에 써놓은 것들을 학습하면서 공부하려고 했는데, 아쉽게 이 기능을 구현하면서 시간을 다 뺏기게 되었다. 그래서 너무 아쉽다. 이번 주말에는 꼭 놓친 부분들에 대해 정리해보도록 하겠다. 
