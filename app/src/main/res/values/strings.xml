@@ -4,4 +4,6 @@
     <string name="save">SAVE</string>
     <string name="hint_textfield">메모 내용을 입력하세요.</string>
     <string name="delete">DELETE</string>
+    <string name="check_box_outline">CheckBoxOutline</string>
+    <string name="check">check</string>
 </resources>

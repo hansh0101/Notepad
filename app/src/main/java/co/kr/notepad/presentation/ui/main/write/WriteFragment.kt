@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentWriteBinding
 import co.kr.notepad.presentation.ui.base.BaseFragment
+import co.kr.notepad.presentation.viewmodel.WriteViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

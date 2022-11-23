@@ -11,9 +11,10 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentListBinding
-import co.kr.notepad.presentation.ui.adapter.MemoAdapter
+import co.kr.notepad.presentation.adapter.MemoAdapter
 import co.kr.notepad.presentation.ui.base.BaseFragment
 import co.kr.notepad.presentation.ui.main.write.WriteFragment
+import co.kr.notepad.presentation.viewmodel.ListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -87,9 +88,13 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                 if (!isMenuProviderAdded && it.isNotEmpty()) {
                     isMenuProviderAdded = true
                     addMenuProvider()
+                    // MemoAdapter 선택 모드로 변경
+                    memoAdapter.notifyItemRangeChanged(0, memoAdapter.itemCount, true)
                 } else if (isMenuProviderAdded && it.isEmpty()) {
                     isMenuProviderAdded = false
                     removeMenuProvider()
+                    // MemoAdapter 선택 모드를 해제
+                    memoAdapter.notifyItemRangeChanged(0, memoAdapter.itemCount, false)
                 }
                 Timber.tag("selectedMemos").i(it.toString())
             }
