@@ -1,8 +1,9 @@
-package co.kr.notepad.presentation.ui.adapter
+package co.kr.notepad.presentation.adapter
 
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -27,34 +28,42 @@ class MemoAdapter(
         fun onBind(item: Memo, isSelected: Boolean) {
             binding.tvTitle.text = item.text
             binding.tvDate.text = item.date.toDateString()
-            initBackground(isSelected)
+            initUiByIsSelected(isSelected)
             binding.root.setOnClickListener {
                 val isSelectMode = onItemClick(item)
                 if (isSelectMode) {
-                    updateBackground()
+                    updateUiBySelectMode()
                 }
             }
             binding.root.setOnLongClickListener {
-                updateBackground()
+                updateUiBySelectMode()
                 onItemSelect(item)
                 true
             }
         }
 
-        private fun initBackground(isSelected: Boolean) {
+        private fun initUiByIsSelected(isSelected: Boolean) {
             if (isSelected) {
                 binding.root.setBackgroundResource(R.color.gray)
+                binding.ivCheck.isVisible = true
             } else {
                 binding.root.background = null
+                binding.ivCheck.isVisible = false
             }
         }
 
-        private fun updateBackground() {
+        private fun updateUiBySelectMode() {
             if ((binding.root.background as? ColorDrawable)?.color == null) {
                 binding.root.setBackgroundResource(R.color.gray)
+                binding.ivCheck.isVisible = true
             } else {
                 binding.root.background = null
+                binding.ivCheck.isVisible = false
             }
+        }
+
+        fun initSelectMode(isSelectMode: Boolean) {
+            binding.layoutCheckBox.isVisible = isSelectMode
         }
 
         companion object {
@@ -77,6 +86,21 @@ class MemoAdapter(
     override fun onBindViewHolder(holder: MemoViewHolder, position: Int) {
         with(items.currentList[position]) {
             holder.onBind(this, selectedItems.contains(this))
+        }
+    }
+
+    override fun onBindViewHolder(
+        holder: MemoViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        onBindViewHolder(holder, position)
+        if (payloads.isNotEmpty()) {
+            for (payload in payloads) {
+                if (payload is Boolean) {
+                    holder.initSelectMode(payload)
+                }
+            }
         }
     }
 

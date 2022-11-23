@@ -1,4 +1,4 @@
-package co.kr.notepad.presentation.ui.main.list
+package co.kr.notepad.presentation.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
