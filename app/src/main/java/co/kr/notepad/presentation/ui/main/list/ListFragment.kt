@@ -1,10 +1,12 @@
 package co.kr.notepad.presentation.ui.main.list
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.commit
@@ -44,6 +46,30 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         }
     })
     private var isMenuProviderAdded = false
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                when (isMenuProviderAdded) {
+                    true -> {
+                        listViewModel.clearSelectedMemos()
+                    }
+                    false -> {
+                        if (parentFragmentManager.backStackEntryCount != 0) {
+                            parentFragmentManager.popBackStack()
+                        } else {
+                            if (!requireActivity().isFinishing) {
+                                requireActivity().finish()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,6 +82,11 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     override fun onDestroyView() {
         super.onDestroyView()
         _memoAdapter = null
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        onBackPressedCallback.remove()
     }
 
     private fun initView() {
@@ -88,12 +119,10 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                 if (!isMenuProviderAdded && it.isNotEmpty()) {
                     isMenuProviderAdded = true
                     addMenuProvider()
-                    // MemoAdapter 선택 모드로 변경
                     memoAdapter.notifyItemRangeChanged(0, memoAdapter.itemCount, true)
                 } else if (isMenuProviderAdded && it.isEmpty()) {
                     isMenuProviderAdded = false
                     removeMenuProvider()
-                    // MemoAdapter 선택 모드를 해제
                     memoAdapter.notifyItemRangeChanged(0, memoAdapter.itemCount, false)
                 }
                 Timber.tag("selectedMemos").i(it.toString())

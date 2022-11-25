@@ -50,4 +50,9 @@ class ListViewModel @Inject constructor(
         }
         _selectedMemos.value = selectedList
     }
+
+    fun clearSelectedMemos() {
+        selectedList.clear()
+        _selectedMemos.value = selectedList
+    }
 }

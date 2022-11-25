@@ -11,6 +11,7 @@ import co.kr.notepad.R
 import co.kr.notepad.databinding.ItemMemoBinding
 import co.kr.notepad.domain.entity.Memo
 import co.kr.notepad.util.toDateString
+import timber.log.Timber
 
 class MemoAdapter(
     private val onItemClick: (Memo) -> Boolean,
@@ -25,13 +26,13 @@ class MemoAdapter(
         private val onItemClick: (Memo) -> Boolean,
         private val onItemSelect: (Memo) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun onBind(item: Memo, isSelected: Boolean) {
+        fun onBind(item: Memo, isSelected: Boolean, isSelectMode: Boolean) {
             binding.tvTitle.text = item.text
             binding.tvDate.text = item.date.toDateString()
             initUiByIsSelected(isSelected)
+            initUiByIsSelectMode(isSelectMode)
             binding.root.setOnClickListener {
-                val isSelectMode = onItemClick(item)
-                if (isSelectMode) {
+                if (onItemClick(item)) {
                     updateUiBySelectMode()
                 }
             }
@@ -62,7 +63,9 @@ class MemoAdapter(
             }
         }
 
-        fun initSelectMode(isSelectMode: Boolean) {
+        fun initUiByIsSelectMode(isSelectMode: Boolean) {
+            Timber.tag("initSelectMode").i("called")
+            Timber.tag("initSelectMode called position").i(adapterPosition.toString())
             binding.layoutCheckBox.isVisible = isSelectMode
         }
 
@@ -85,7 +88,7 @@ class MemoAdapter(
 
     override fun onBindViewHolder(holder: MemoViewHolder, position: Int) {
         with(items.currentList[position]) {
-            holder.onBind(this, selectedItems.contains(this))
+            holder.onBind(this, selectedItems.contains(this), selectedItems.isNotEmpty())
         }
     }
 
@@ -98,7 +101,7 @@ class MemoAdapter(
         if (payloads.isNotEmpty()) {
             for (payload in payloads) {
                 if (payload is Boolean) {
-                    holder.initSelectMode(payload)
+                    holder.initUiByIsSelectMode(payload)
                 }
             }
         }
