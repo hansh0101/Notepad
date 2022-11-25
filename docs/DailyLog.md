@@ -78,3 +78,13 @@
   > 사실 시중에 출시된 앱들 중 많은 앱들이 리스트에서 다중 선택 기능을 제공한다. 그 앱들이 어떻게 구현했을지 궁금하다. 구현 방법에 대해 검색해서 적용한 것이 아니라 스스로 고민하면서 작성을 했는데, 내 방법보다 더 효율적인 방법을 찾고 싶다.
 
   > payloads를 사용한 방법을 채택한 이유는 ViewHolder의 View를 다시 그리는 것보다 visibility만 조작하는 것이 효율적이라고 판단했기 때문에 그렇게 했다.
+
+### 2022.11.25
+- 메모 다중 선택 모드일 때, back button을 누를 경우 Fragment가 종료되는 것이 아니라 다중 선택 모드를 해제하도록 onBackPressedCallback 구현
+- 메모 다중 선택 모드 진입 시, 화면에 표시되는 범위 앞뒤로 2개 정도씩의 ViewHolder가 다중 선택 모드 UI로 업데이트되지 않는 현상 해결
+- 회고
+  > 다중 선택 모드 처리를 잘 했다고 생각했는데, 화면에 표시되는 범위 앞뒤로 2개 정도씩의 ViewHolder가 다중 선택 모드로 UI가 업데이트되지 않는 것을 알게 되었다. notifyItemRangeChanged를 활용해 모든 범위에 아이템이 바뀌었음을 알리도록 구현했는데, 왜 안 되는지 잘 모르겠다. 로그를 찍어보니 화면에 보이는 범위에 대해서만 payloads를 활용해 갱신하는 것을 확인했고, 이를 기반으로 onBind 메서드에도 isSelectMode라는 파라미터를 추가해 onBind 호출 시 내부적으로 `initUiByIsSelectMode()` 메서드를 호출하도록 하였다.
+
+  > Android 13부터 Activity의 onBackPressed()가 deprecated된다.
+
+  > onBackPressedCallback과 onBackPressedDispatcher를 활용해 다중 선택 모드일 때 back button을 누를 경우 Fragment 종료가 아닌 다중 선택 모드를 해제하도록 구현했다.
