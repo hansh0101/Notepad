@@ -18,7 +18,6 @@ import co.kr.notepad.presentation.ui.base.BaseFragment
 import co.kr.notepad.presentation.ui.main.write.WriteFragment
 import co.kr.notepad.presentation.viewmodel.ListViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class ListFragment : BaseFragment<FragmentListBinding>() {
@@ -112,20 +111,22 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         with(listViewModel) {
             memos.observe(viewLifecycleOwner) {
                 memoAdapter.updateList(it)
-                Timber.tag("memos").i(it.toString())
             }
             selectedMemos.observe(viewLifecycleOwner) {
                 memoAdapter.updateSelectedItems(it)
-                if (!isMenuProviderAdded && it.isNotEmpty()) {
-                    isMenuProviderAdded = true
-                    addMenuProvider()
-                    memoAdapter.notifyItemRangeChanged(0, memoAdapter.itemCount, true)
-                } else if (isMenuProviderAdded && it.isEmpty()) {
-                    isMenuProviderAdded = false
-                    removeMenuProvider()
-                    memoAdapter.notifyItemRangeChanged(0, memoAdapter.itemCount, false)
+                if (it.isNotEmpty()) {
+                    binding.fabAdd.isEnabled = false
+                    if (!isMenuProviderAdded) {
+                        isMenuProviderAdded = true
+                        addMenuProvider()
+                    }
+                } else {
+                    binding.fabAdd.isEnabled = true
+                    if (isMenuProviderAdded) {
+                        isMenuProviderAdded = false
+                        removeMenuProvider()
+                    }
                 }
-                Timber.tag("selectedMemos").i(it.toString())
             }
         }
     }

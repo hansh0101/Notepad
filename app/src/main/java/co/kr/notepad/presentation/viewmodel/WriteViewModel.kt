@@ -32,7 +32,6 @@ class WriteViewModel @Inject constructor(
     }
 
     fun getMemo(memoId: Long) {
-        Timber.tag("memoId").i(memoId.toString())
         if (memoId == 0L) {
             return
         }
