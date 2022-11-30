@@ -88,3 +88,11 @@
   > Android 13부터 Activity의 onBackPressed()가 deprecated된다.
 
   > onBackPressedCallback과 onBackPressedDispatcher를 활용해 다중 선택 모드일 때 back button을 누를 경우 Fragment 종료가 아닌 다중 선택 모드를 해제하도록 구현했다.
+
+### 2022.11.30
+- WriteFragment에서 onStop 호출 시 작성 중이던 메모를 자동으로 저장하도록 구현
+- 자동 저장 관련, 기존의 메모에서 수정된 내용이 없다면 별도로 저장하지 않게 하기 위해 Memo 클래스에 isContentsTheSame 메서드 구현
+- 회고
+  > 만약 onStop이 너무 짧아서 메모를 자동으로 저장하기에 충분하지 않을 경우 어떻게 구현해야 할까?`
+
+  > 추후 개발할 이슈로 미루긴 했지만, AppBar에서 HomeAsUpIndicator를 적절히 사용하는 방법에 대해 공부할 필요가 있다. HomeAsUpIndicator를 추가하려 했으나, 아무런 동작이 없고 onOptionsItemSelected 메서드와 같이 기존의 메서드들은 deprecated되어 다른 방법을 찾아 공부해야 할 것 같다.

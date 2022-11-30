@@ -1,4 +1,4 @@
-package co.kr.notepad.presentation.ui.main
+package co.kr.notepad.presentation.ui
 
 import android.os.Bundle
 import androidx.fragment.app.add
@@ -6,7 +6,7 @@ import androidx.fragment.app.commit
 import co.kr.notepad.R
 import co.kr.notepad.databinding.ActivityMainBinding
 import co.kr.notepad.presentation.ui.base.BaseActivity
-import co.kr.notepad.presentation.ui.main.list.ListFragment
+import co.kr.notepad.presentation.ui.list.ListFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

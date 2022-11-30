@@ -1,4 +1,4 @@
-package co.kr.notepad.presentation.ui.main.list
+package co.kr.notepad.presentation.ui.list
 
 import android.content.Context
 import android.os.Bundle
@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.commit
@@ -15,7 +16,7 @@ import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentListBinding
 import co.kr.notepad.presentation.adapter.MemoAdapter
 import co.kr.notepad.presentation.ui.base.BaseFragment
-import co.kr.notepad.presentation.ui.main.write.WriteFragment
+import co.kr.notepad.presentation.ui.write.WriteFragment
 import co.kr.notepad.presentation.viewmodel.ListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -89,6 +90,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun initView() {
+        (activity as? AppCompatActivity)?.supportActionBar?.title = "Notepad"
         initRecyclerView()
     }
 
@@ -157,9 +159,5 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
 
     private fun removeMenuProvider() {
         (requireActivity() as MenuHost).removeMenuProvider(menuProvider)
-    }
-
-    companion object {
-        fun newInstance() = ListFragment()
     }
 }

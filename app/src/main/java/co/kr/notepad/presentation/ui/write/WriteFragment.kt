@@ -1,13 +1,9 @@
-package co.kr.notepad.presentation.ui.main.write
+package co.kr.notepad.presentation.ui.write
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentWriteBinding
@@ -23,30 +19,8 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         get() = this::class.java.simpleName
 
     private val writeViewModel by viewModels<WriteViewModel>()
-    private val menuProvider = (object : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            menuInflater.inflate(R.menu.menu_write, menu)
-        }
-
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-            return when (menuItem.itemId) {
-                R.id.menu_save -> {
-                    writeViewModel.insertOrUpdate(
-                        memoId = memoId,
-                        text = binding.editTextField.text.toString()
-                    )
-                    true
-                }
-                else -> false
-            }
-        }
-    })
-    private var memoId: Long = 0L
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        memoId = arguments?.getLong(MEMO_ID) ?: 0L
-    }
+    private val memoId: Long by lazy { arguments?.getLong(MEMO_ID) ?: 0L }
+    private val memoText: String get() = binding.editTextField.text.toString()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,13 +29,15 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         observeData()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        removeMenuProvider()
+    override fun onStop() {
+        super.onStop()
+        writeViewModel.insertOrUpdate(memoId = memoId, text = memoText)
     }
 
     private fun initView() {
-        initToolbar()
+        with((activity as? AppCompatActivity)?.supportActionBar) {
+            this?.title = "Write memo"
+        }
     }
 
     private fun loadData() {
@@ -70,10 +46,8 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     private fun observeData() {
         with(writeViewModel) {
-            isSaved.observe(viewLifecycleOwner) {
+            isErrorOccurred.observe(viewLifecycleOwner) {
                 if (it) {
-                    parentFragmentManager.popBackStack()
-                } else {
                     Toast.makeText(requireContext(), "Not saved", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -81,14 +55,6 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
                 binding.editTextField.setText(it.text)
             }
         }
-    }
-
-    private fun initToolbar() {
-        (requireActivity() as MenuHost).addMenuProvider(menuProvider)
-    }
-
-    private fun removeMenuProvider() {
-        (requireActivity() as MenuHost).removeMenuProvider(menuProvider)
     }
 
     companion object {
