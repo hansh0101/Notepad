@@ -11,7 +11,6 @@ import co.kr.notepad.R
 import co.kr.notepad.databinding.ItemMemoBinding
 import co.kr.notepad.domain.entity.Memo
 import co.kr.notepad.util.toDateString
-import timber.log.Timber
 
 class MemoAdapter(
     private val onItemClick: (Memo) -> Boolean,
@@ -29,21 +28,21 @@ class MemoAdapter(
         fun onBind(item: Memo, isSelected: Boolean, isSelectMode: Boolean) {
             binding.tvTitle.text = item.text
             binding.tvDate.text = item.date.toDateString()
-            initUiByIsSelected(isSelected)
-            initUiByIsSelectMode(isSelectMode)
+            initViewHolderByIsSelected(isSelected)
+            initViewHolderByIsSelectMode(isSelectMode)
             binding.root.setOnClickListener {
                 if (onItemClick(item)) {
-                    updateUiBySelectMode()
+                    updateViewHolderBySelectMode()
                 }
             }
             binding.root.setOnLongClickListener {
-                updateUiBySelectMode()
+                updateViewHolderBySelectMode()
                 onItemSelect(item)
                 true
             }
         }
 
-        private fun initUiByIsSelected(isSelected: Boolean) {
+        private fun initViewHolderByIsSelected(isSelected: Boolean) {
             if (isSelected) {
                 binding.root.setBackgroundResource(R.color.gray)
                 binding.ivCheck.isVisible = true
@@ -53,7 +52,7 @@ class MemoAdapter(
             }
         }
 
-        private fun updateUiBySelectMode() {
+        private fun updateViewHolderBySelectMode() {
             if ((binding.root.background as? ColorDrawable)?.color == null) {
                 binding.root.setBackgroundResource(R.color.gray)
                 binding.ivCheck.isVisible = true
@@ -63,9 +62,7 @@ class MemoAdapter(
             }
         }
 
-        fun initUiByIsSelectMode(isSelectMode: Boolean) {
-            Timber.tag("initSelectMode").i("called")
-            Timber.tag("initSelectMode called position").i(adapterPosition.toString())
+        fun initViewHolderByIsSelectMode(isSelectMode: Boolean) {
             binding.layoutCheckBox.isVisible = isSelectMode
         }
 
@@ -101,7 +98,7 @@ class MemoAdapter(
         if (payloads.isNotEmpty()) {
             for (payload in payloads) {
                 if (payload is Boolean) {
-                    holder.initUiByIsSelectMode(payload)
+                    holder.initViewHolderByIsSelectMode(payload)
                 }
             }
         }
@@ -117,6 +114,7 @@ class MemoAdapter(
 
     fun updateSelectedItems(selectedMemos: List<Memo>) {
         selectedItems = selectedMemos
+        notifyItemRangeChanged(0, itemCount, selectedMemos.isNotEmpty())
     }
 
     companion object {

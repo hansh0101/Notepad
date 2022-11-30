@@ -19,20 +19,20 @@ class WriteViewModel @Inject constructor(
 ) : ViewModel() {
     private val _memo = MutableLiveData<Memo>()
     val memo: LiveData<Memo> get() = _memo
-    private val _isSaved = MutableLiveData<Boolean>()
-    val isSaved: LiveData<Boolean> get() = _isSaved
+    private val _isErrorOccurred = MutableLiveData<Boolean>()
+    val isErrorOccurred: LiveData<Boolean> get() = _isErrorOccurred
 
     fun insertOrUpdate(memoId: Long, text: String) {
-        viewModelScope.launch {
-            val memo = Memo(id = memoId, text = text, date = System.currentTimeMillis())
-            insertOrUpdateMemoUseCase(memo)
-                .onSuccess { _isSaved.value = true }
-                .onFailure { _isSaved.value = false }
+        val newMemo = Memo(id = memoId, text = text, date = System.currentTimeMillis())
+        if (!newMemo.isContentsTheSame(memo.value)) {
+            viewModelScope.launch {
+                insertOrUpdateMemoUseCase(newMemo)
+                    .onFailure { _isErrorOccurred.value = true }
+            }
         }
     }
 
     fun getMemo(memoId: Long) {
-        Timber.tag("memoId").i(memoId.toString())
         if (memoId == 0L) {
             return
         }
