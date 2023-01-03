@@ -24,7 +24,7 @@ class WriteViewModel @Inject constructor(
 
     fun insertOrUpdate(memoId: Long, text: String) {
         val newMemo = Memo(id = memoId, text = text, date = System.currentTimeMillis())
-        if (!newMemo.isContentsTheSame(memo.value)) {
+        if (text.isNotBlank() && !newMemo.isContentsTheSame(memo.value)) {
             viewModelScope.launch {
                 insertOrUpdateMemoUseCase(newMemo)
                     .onFailure { _isErrorOccurred.value = true }

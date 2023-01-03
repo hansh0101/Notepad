@@ -10,5 +10,5 @@
     <color name="gray">#CECECE</color>
     <color name="disabled_gray">#808080</color>
 
-    <color name="text_color">#FF000000</color>
+    <color name="text_color">#FFFFFFFF</color>
 </resources>

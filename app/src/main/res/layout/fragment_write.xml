@@ -18,7 +18,7 @@
             android:inputType="textMultiLine"
             android:padding="10dp"
             android:scrollHorizontally="false"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             android:textSize="14sp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
