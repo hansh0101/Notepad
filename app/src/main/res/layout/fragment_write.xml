@@ -36,8 +36,18 @@
             android:scrollHorizontally="false"
             android:textColor="@color/text_color"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/image_add"
             app:layout_constraintTop_toBottomOf="@id/edit_text_title" />
+
+        <ImageView
+            android:id="@+id/image_add"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/content_description_image_add"
+            android:padding="5dp"
+            android:src="@drawable/ic_baseline_add_photo_alternate_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
