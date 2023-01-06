@@ -22,9 +22,9 @@ class WriteViewModel @Inject constructor(
     private val _isErrorOccurred = MutableLiveData<Boolean>()
     val isErrorOccurred: LiveData<Boolean> get() = _isErrorOccurred
 
-    fun insertOrUpdate(memoId: Long, text: String) {
-        val newMemo = Memo(id = memoId, text = text, date = System.currentTimeMillis())
-        if (text.isNotBlank() && !newMemo.isContentsTheSame(memo.value)) {
+    fun insertOrUpdate(memoId: Long, title: String, text: String) {
+        val newMemo = Memo(id = memoId, title = title, text = text, date = System.currentTimeMillis())
+        if (title.isNotBlank() && !newMemo.isContentsTheSame(memo.value)) {
             viewModelScope.launch {
                 insertOrUpdateMemoUseCase(newMemo)
                     .onFailure { _isErrorOccurred.value = true }

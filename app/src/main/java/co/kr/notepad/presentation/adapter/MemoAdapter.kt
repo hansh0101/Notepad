@@ -26,7 +26,7 @@ class MemoAdapter(
         private val onItemSelect: (Memo) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun onBind(item: Memo, isSelected: Boolean, isSelectMode: Boolean) {
-            binding.tvTitle.text = item.text
+            binding.tvTitle.text = item.title
             binding.tvDate.text = item.date.toDateString()
             initViewHolderByIsSelected(isSelected)
             initViewHolderByIsSelectMode(isSelectMode)

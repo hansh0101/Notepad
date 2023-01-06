@@ -12,6 +12,7 @@ class MemoDataSourceImpl @Inject constructor(
         memoDao.insert(
             MemoDto(
                 memo.id,
+                memo.title,
                 memo.text,
                 memo.date
             )
@@ -30,6 +31,7 @@ class MemoDataSourceImpl @Inject constructor(
         return memoDao.update(
             MemoDto(
                 memo.id,
+                memo.title,
                 memo.text,
                 memo.date
             )
@@ -41,6 +43,7 @@ class MemoDataSourceImpl @Inject constructor(
             *(memos.map {
                 MemoDto(
                     it.id,
+                    it.title,
                     it.text,
                     it.date
                 )
