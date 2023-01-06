@@ -8,46 +8,68 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/edit_text_title"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:hint="@string/hint_title"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:maxLength="15"
-            android:padding="10dp"
-            android:scrollHorizontally="false"
-            android:textColor="@color/text_color"
-            android:textSize="18sp"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/edit_text_field"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@null"
-            android:gravity="top"
-            android:hint="@string/hint_textfield"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:padding="10dp"
-            android:scrollHorizontally="false"
-            android:textColor="@color/text_color"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toTopOf="@id/image_add"
-            app:layout_constraintTop_toBottomOf="@id/edit_text_title" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/image_add"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="@string/content_description_image_add"
-            android:padding="5dp"
-            android:src="@drawable/ic_baseline_add_photo_alternate_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+                <EditText
+                    android:id="@+id/edit_text_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="@string/hint_title"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:maxLength="15"
+                    android:padding="10dp"
+                    android:scrollHorizontally="false"
+                    android:textColor="@color/text_color"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/edit_text_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:gravity="top"
+                    android:hint="@string/hint_textfield"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:padding="10dp"
+                    android:scrollHorizontally="false"
+                    android:textColor="@color/text_color"
+                    android:textSize="14sp"
+                    app:layout_constraintTop_toBottomOf="@id/edit_text_title" />
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/content_description_image"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/edit_text_field" />
+
+                <ImageView
+                    android:id="@+id/image_clear"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/content_description_image_clear"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_clear_24"
+                    app:layout_constraintEnd_toEndOf="@id/image"
+                    app:layout_constraintTop_toTopOf="@id/image" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
