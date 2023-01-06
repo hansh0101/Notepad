@@ -6,4 +6,5 @@
     <string name="delete">DELETE</string>
     <string name="check_box_outline">CheckBoxOutline</string>
     <string name="check">check</string>
+    <string name="hint_title">메모 제목을 입력하세요.</string>
 </resources>

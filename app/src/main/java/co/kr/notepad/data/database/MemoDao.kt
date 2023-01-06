@@ -8,7 +8,7 @@ interface MemoDao {
     @Insert
     suspend fun insert(memo: MemoDto): Long
 
-    @Query("SELECT * FROM memo")
+    @Query("SELECT * FROM memo ORDER BY date DESC")
     suspend fun getAll(): List<MemoDto>
 
     @Query("SELECT * FROM memo WHERE id = :memoId")
