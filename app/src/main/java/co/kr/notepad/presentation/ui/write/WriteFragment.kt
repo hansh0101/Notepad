@@ -20,6 +20,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     private val writeViewModel by viewModels<WriteViewModel>()
     private val memoId: Long by lazy { arguments?.getLong(MEMO_ID) ?: 0L }
+    private val memoTitle: String get() = binding.editTextTitle.text.toString()
     private val memoText: String get() = binding.editTextField.text.toString()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,7 +32,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     override fun onStop() {
         super.onStop()
-        writeViewModel.insertOrUpdate(memoId = memoId, text = memoText)
+        writeViewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
     }
 
     private fun initView() {
@@ -52,6 +53,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
                 }
             }
             memo.observe(viewLifecycleOwner) {
+                binding.editTextTitle.setText(it.title)
                 binding.editTextField.setText(it.text)
             }
         }
