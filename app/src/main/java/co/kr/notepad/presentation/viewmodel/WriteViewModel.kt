@@ -26,7 +26,13 @@ class WriteViewModel @Inject constructor(
 
     fun insertOrUpdate(memoId: Long, title: String, text: String) {
         val newMemo =
-            Memo(id = memoId, title = title, text = text, date = System.currentTimeMillis())
+            Memo(
+                id = memoId,
+                title = title,
+                text = text,
+                image = imageUri.value.toString(),
+                date = System.currentTimeMillis()
+            )
         if (title.isNotBlank() && !newMemo.isContentsTheSame(memo.value)) {
             viewModelScope.launch {
                 insertOrUpdateMemoUseCase(newMemo)
@@ -41,8 +47,10 @@ class WriteViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getMemoUseCase(memoId)
-                .onSuccess { _memo.value = it }
-                .onFailure { Timber.e(it) }
+                .onSuccess { memoFromDatabase ->
+                    _memo.value = memoFromDatabase
+                    memoFromDatabase.image?.let { imageUri.value = Uri.parse(it) }
+                }.onFailure { Timber.e(it) }
         }
     }
 }
