@@ -95,7 +95,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     }
 
     private fun initView() {
-        with((activity as? AppCompatActivity)?.supportActionBar) {
+        (activity as? AppCompatActivity)?.supportActionBar.run {
             this?.title = "Write memo"
         }
         (requireActivity() as MenuHost).addMenuProvider(
@@ -116,7 +116,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     }
 
     private fun observeData() {
-        with(viewModel) {
+        viewModel.run {
             isErrorOccurred.observe(viewLifecycleOwner) {
                 if (it) {
                     Toast.makeText(requireContext(), "Not saved", Toast.LENGTH_SHORT).show()

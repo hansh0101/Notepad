@@ -84,7 +84,7 @@ class MemoAdapter(
     }
 
     override fun onBindViewHolder(holder: MemoViewHolder, position: Int) {
-        with(items.currentList[position]) {
+        items.currentList[position].run {
             holder.onBind(this, selectedItems.contains(this), selectedItems.isNotEmpty())
         }
     }

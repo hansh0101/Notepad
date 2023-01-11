@@ -107,7 +107,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun initOnClickListener() {
-        with(binding) {
+        binding.run {
             fabAdd.setOnClickListener {
                 parentFragmentManager.commit {
                     replace(R.id.fcv_main, WriteFragment.newInstance())
@@ -122,7 +122,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun observeData() {
-        with(viewModel) {
+        viewModel.run {
             memos.observe(viewLifecycleOwner) {
                 memoAdapter.updateList(it)
             }
