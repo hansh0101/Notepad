@@ -27,7 +27,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     override val TAG: String
         get() = this::class.java.simpleName
 
-    private val listViewModel by viewModels<ListViewModel>()
+    private val viewModel by viewModels<ListViewModel>()
     private var _memoAdapter: MemoAdapter? = null
     private val memoAdapter get() = _memoAdapter ?: error("adapter not initialized")
     private val menuProvider = (object : MenuProvider {
@@ -38,7 +38,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
             return when (menuItem.itemId) {
                 R.id.menu_delete -> {
-                    listViewModel.delete()
+                    viewModel.delete()
                     true
                 }
                 else -> false
@@ -54,7 +54,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
             override fun handleOnBackPressed() {
                 when (isMenuProviderAdded) {
                     true -> {
-                        listViewModel.clearSelectedMemos()
+                        viewModel.clearSelectedMemos()
                     }
                     false -> {
                         if (parentFragmentManager.backStackEntryCount != 0) {
@@ -106,11 +106,11 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun loadData() {
-        listViewModel.getAll()
+        viewModel.getAll()
     }
 
     private fun observeData() {
-        with(listViewModel) {
+        with(viewModel) {
             memos.observe(viewLifecycleOwner) {
                 memoAdapter.updateList(it)
             }
@@ -143,12 +143,12 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                         addToBackStack(null)
                     }
                 } else {
-                    listViewModel.updateSelectedMemos(it)
+                    viewModel.updateSelectedMemos(it)
                 }
                 isSelectMode
             },
             onItemSelect = {
-                listViewModel.updateSelectedMemos(it)
+                viewModel.updateSelectedMemos(it)
             })
         binding.rvMemo.adapter = memoAdapter
     }

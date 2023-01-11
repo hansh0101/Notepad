@@ -34,7 +34,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     override val TAG: String
         get() = this::class.java.simpleName
 
-    private val writeViewModel by viewModels<WriteViewModel>()
+    private val viewModel by viewModels<WriteViewModel>()
     private val menuProvider = (object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.menu_write, menu)
@@ -74,7 +74,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     private val galleryLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK && it.data != null) {
-                writeViewModel.imageUri.value = it.data?.data
+                viewModel.imageUri.value = it.data?.data
             }
         }
     private val memoId: Long by lazy { arguments?.getLong(MEMO_ID) ?: 0L }
@@ -91,7 +91,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     override fun onStop() {
         super.onStop()
-        writeViewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
+        viewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
     }
 
     private fun initView() {
@@ -107,16 +107,16 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     private fun initOnClickListener() {
         binding.imageClear.setOnClickListener {
-            writeViewModel.imageUri.value = null
+            viewModel.imageUri.value = null
         }
     }
 
     private fun loadData() {
-        writeViewModel.getMemo(memoId)
+        viewModel.getMemo(memoId)
     }
 
     private fun observeData() {
-        with(writeViewModel) {
+        with(viewModel) {
             isErrorOccurred.observe(viewLifecycleOwner) {
                 if (it) {
                     Toast.makeText(requireContext(), "Not saved", Toast.LENGTH_SHORT).show()
