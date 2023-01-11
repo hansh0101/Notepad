@@ -1,5 +1,6 @@
 package co.kr.notepad.presentation.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,9 +22,17 @@ class WriteViewModel @Inject constructor(
     val memo: LiveData<Memo> get() = _memo
     private val _isErrorOccurred = MutableLiveData<Boolean>()
     val isErrorOccurred: LiveData<Boolean> get() = _isErrorOccurred
+    val imageUri = MutableLiveData<Uri?>(null)
 
     fun insertOrUpdate(memoId: Long, title: String, text: String) {
-        val newMemo = Memo(id = memoId, title = title, text = text, date = System.currentTimeMillis())
+        val newMemo =
+            Memo(
+                id = memoId,
+                title = title,
+                text = text,
+                image = imageUri.value.toString(),
+                date = System.currentTimeMillis()
+            )
         if (title.isNotBlank() && !newMemo.isContentsTheSame(memo.value)) {
             viewModelScope.launch {
                 insertOrUpdateMemoUseCase(newMemo)
@@ -38,8 +47,10 @@ class WriteViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getMemoUseCase(memoId)
-                .onSuccess { _memo.value = it }
-                .onFailure { Timber.e(it) }
+                .onSuccess { memoFromDatabase ->
+                    _memo.value = memoFromDatabase
+                    memoFromDatabase.image?.let { imageUri.value = Uri.parse(it) }
+                }.onFailure { Timber.e(it) }
         }
     }
 }

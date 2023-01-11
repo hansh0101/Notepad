@@ -14,6 +14,7 @@ class MemoDataSourceImpl @Inject constructor(
                 memo.id,
                 memo.title,
                 memo.text,
+                memo.image,
                 memo.date
             )
         )
@@ -33,6 +34,7 @@ class MemoDataSourceImpl @Inject constructor(
                 memo.id,
                 memo.title,
                 memo.text,
+                memo.image,
                 memo.date
             )
         )
@@ -45,6 +47,7 @@ class MemoDataSourceImpl @Inject constructor(
                     it.id,
                     it.title,
                     it.text,
+                    it.image,
                     it.date
                 )
             }).toTypedArray()
