@@ -95,7 +95,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     }
 
     private fun initView() {
-        (activity as? AppCompatActivity)?.supportActionBar.run {
+        (requireActivity() as AppCompatActivity).supportActionBar.run {
             this?.title = "Write memo"
         }
         (requireActivity() as MenuHost).addMenuProvider(

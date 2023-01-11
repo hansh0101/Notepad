@@ -102,7 +102,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun initView() {
-        (activity as? AppCompatActivity)?.supportActionBar?.title = "Notepad"
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = "Notepad"
         binding.rvMemo.adapter = memoAdapter
     }
 
