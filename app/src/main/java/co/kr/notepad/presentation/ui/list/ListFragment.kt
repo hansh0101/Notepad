@@ -128,28 +128,27 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
             }
             selectedMemos.observe(viewLifecycleOwner) {
                 memoAdapter.updateSelectedItems(it)
+                binding.fabAdd.isEnabled = it.isEmpty()
                 if (it.isNotEmpty()) {
-                    binding.fabAdd.isEnabled = false
-                    if (!isMenuProviderAdded) {
-                        isMenuProviderAdded = true
-                        addMenuProvider()
-                    }
+                    addMenuProvider()
                 } else {
-                    binding.fabAdd.isEnabled = true
-                    if (isMenuProviderAdded) {
-                        isMenuProviderAdded = false
-                        removeMenuProvider()
-                    }
+                    removeMenuProvider()
                 }
             }
         }
     }
 
     private fun addMenuProvider() {
-        (requireActivity() as MenuHost).addMenuProvider(menuProvider)
+        if (!isMenuProviderAdded) {
+            isMenuProviderAdded = true
+            (requireActivity() as MenuHost).addMenuProvider(menuProvider)
+        }
     }
 
     private fun removeMenuProvider() {
-        (requireActivity() as MenuHost).removeMenuProvider(menuProvider)
+        if (isMenuProviderAdded) {
+            isMenuProviderAdded = false
+            (requireActivity() as MenuHost).removeMenuProvider(menuProvider)
+        }
     }
 }
