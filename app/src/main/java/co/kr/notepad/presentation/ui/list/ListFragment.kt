@@ -103,7 +103,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
 
     private fun initView() {
         (activity as? AppCompatActivity)?.supportActionBar?.title = "Notepad"
-        initRecyclerView()
+        binding.rvMemo.adapter = memoAdapter
     }
 
     private fun initOnClickListener() {
@@ -143,26 +143,6 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                 }
             }
         }
-    }
-
-    private fun initRecyclerView() {
-        _memoAdapter = MemoAdapter(
-            onItemClick = {
-                val isSelectMode = (memoAdapter.getSelectedItemCount() != 0)
-                if (memoAdapter.getSelectedItemCount() == 0) {
-                    parentFragmentManager.commit {
-                        replace(R.id.fcv_main, WriteFragment.newInstance(it.id))
-                        addToBackStack(null)
-                    }
-                } else {
-                    viewModel.updateSelectedMemos(it)
-                }
-                isSelectMode
-            },
-            onItemSelect = {
-                viewModel.updateSelectedMemos(it)
-            })
-        binding.rvMemo.adapter = memoAdapter
     }
 
     private fun addMenuProvider() {
