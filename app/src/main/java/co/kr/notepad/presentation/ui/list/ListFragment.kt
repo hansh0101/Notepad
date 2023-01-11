@@ -61,12 +61,8 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
             }
         }
     })
-    private var isMenuProviderAdded = false
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
+    private val onBackPressedCallback: OnBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when (isMenuProviderAdded) {
                     true -> {
@@ -84,6 +80,11 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                 }
             }
         }
+    }
+    private var isMenuProviderAdded = false
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
         requireActivity().onBackPressedDispatcher
             .addCallback(onBackPressedCallback)
     }
