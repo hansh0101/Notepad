@@ -92,7 +92,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initOnClickListener()
-        loadData()
+        fetchData()
         observeData()
     }
 
@@ -117,7 +117,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         }
     }
 
-    private fun loadData() {
+    private fun fetchData() {
         viewModel.getAll()
     }
 

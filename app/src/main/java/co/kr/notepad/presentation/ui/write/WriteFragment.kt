@@ -85,7 +85,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initOnClickListener()
-        loadData()
+        fetchData()
         observeData()
     }
 
@@ -111,7 +111,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         }
     }
 
-    private fun loadData() {
+    private fun fetchData() {
         viewModel.getMemo(memoId)
     }
 
