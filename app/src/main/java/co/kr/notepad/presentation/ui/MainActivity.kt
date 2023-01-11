@@ -22,15 +22,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     private fun initView() {
-        when (supportFragmentManager.backStackEntryCount) {
-            0 -> {
-                supportFragmentManager.commit {
-                    add<ListFragment>(R.id.fcv_main)
-                }
-            }
-            else -> {
-
-            }
+        supportFragmentManager.commit {
+            add<ListFragment>(R.id.fcv_main)
         }
     }
 }
