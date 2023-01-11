@@ -1,7 +1,6 @@
 package co.kr.notepad.presentation.ui
 
 import android.os.Bundle
-import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import co.kr.notepad.R
 import co.kr.notepad.databinding.ActivityMainBinding
@@ -23,7 +22,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun initView() {
         supportFragmentManager.commit {
-            add<ListFragment>(R.id.fcv_main)
+            add(R.id.fcv_main, ListFragment.newInstance())
         }
     }
 }

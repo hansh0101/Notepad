@@ -153,4 +153,8 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
             (requireActivity() as MenuHost).removeMenuProvider(menuProvider)
         }
     }
+
+    companion object {
+        fun newInstance(): ListFragment = ListFragment()
+    }
 }
