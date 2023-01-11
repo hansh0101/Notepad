@@ -28,8 +28,24 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         get() = this::class.java.simpleName
 
     private val viewModel by viewModels<ListViewModel>()
-    private var _memoAdapter: MemoAdapter? = null
-    private val memoAdapter get() = _memoAdapter ?: error("adapter not initialized")
+    private val memoAdapter: MemoAdapter by lazy {
+        MemoAdapter(
+            onItemClick = {
+                val isSelectMode = (memoAdapter.getSelectedItemCount() != 0)
+                if (memoAdapter.getSelectedItemCount() == 0) {
+                    parentFragmentManager.commit {
+                        replace(R.id.fcv_main, WriteFragment.newInstance(it.id))
+                        addToBackStack(null)
+                    }
+                } else {
+                    viewModel.updateSelectedMemos(it)
+                }
+                isSelectMode
+            },
+            onItemSelect = {
+                viewModel.updateSelectedMemos(it)
+            })
+    }
     private val menuProvider = (object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.menu_list, menu)
@@ -77,11 +93,6 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         initOnClickListener()
         loadData()
         observeData()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _memoAdapter = null
     }
 
     override fun onDetach() {
