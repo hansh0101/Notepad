@@ -84,7 +84,8 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                 }
             }
         }
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        requireActivity().onBackPressedDispatcher
+            .addCallback(onBackPressedCallback)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
