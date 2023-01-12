@@ -61,8 +61,8 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         }
     })
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            when (it) {
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
+            when (permissionGranted) {
                 true -> navigateGallery()
                 false -> Toast.makeText(
                     requireContext(),
@@ -72,9 +72,9 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
             }
         }
     private val galleryLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK && it.data != null) {
-                viewModel.imageUri.value = it.data?.data
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                viewModel.imageUri.value = result.data?.data
             }
         }
     private val memoId: Long by lazy { arguments?.getLong(MEMO_ID) ?: 0L }
