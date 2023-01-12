@@ -106,3 +106,13 @@
   
   > back button을 눌러 자동저장하는 로직에서 뭔가 문제를 찾았다. 아무 것도 입력을 하지 않아서 백 버튼을 눌렀는데도 저장되는 것이 옳을까? 아니라는 생각이 들어 수정했다.
  
+### 2023.01.13
+- 기능을 더 추가하기 이전에, 이미 구현한 기능에 대한 리팩토링 진행
+- LiveData에서 StateFlow로 전환
+- 자동 저장 로직을 구현하는 과정에서 OnBackPressedCallback을 lifecycle을 활용해 리팩토링
+- 회고
+  > 전체적으로 View에서의 코드가 많다는 생각이 들었다. ListFragment와 WriteFragment의 코드 양이 꽤 많은데, 이를 효율적으로 나눌 수 있는 기준에 대해 고민해볼 필요가 있는 듯 하다.
+
+  > StateFlow를 사용하면서, UiState라는 sealed class를 만들어 상태 처리를 용이하게 하기 위해 시도했다. 이 과정에서 StateFlow에 같은 값이 들어갈 경우 collect되지 않는 문제에 직면했는데, 해당 내용에 관해 공부해야 할 것 같다.
+  
+  > OnBackPressedCallback이 제대로 동작하지 않는 문제에 직면했었다. 정확한 상황은 이제, onAttach()에서 콜백을 등록하고 onDetach()에서 콜백을 제거하는 방향으로 구현을 했고, 문제가 있다고 느낀 부분은 이미지를 추가한 뒤 back button을 눌렀을 경우였다. 이 때는 추가한 콜백이 동작하지 않아 자동 저장이 되지 않는 오류를 마주했다. 이를 해결한 방법은 onAttach()에서 콜백을 등록만 하되, LifecycleOwner를 파라미터로 전달해 LifecycleOwner가 살아있는 동안에 콜백이 등록되어 있게끔 했다. 그런데 수동으로 등록/해제하는 과정과 lifecycle aware하게 구현했을 때의 정확한 차이를 잘 모르겠다.
