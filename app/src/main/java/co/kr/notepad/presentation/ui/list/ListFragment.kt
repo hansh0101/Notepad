@@ -67,32 +67,29 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
             }
         }
     })
-    private val onBackPressedCallback: OnBackPressedCallback by lazy {
-        object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                when (isMenuProviderAdded) {
-                    true -> {
-                        viewModel.clearSelectedMemos()
-                    }
-                    false -> {
-                        if (parentFragmentManager.backStackEntryCount != 0) {
-                            parentFragmentManager.popBackStack()
-                        } else {
-                            if (!requireActivity().isFinishing) {
-                                requireActivity().finish()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
     private var isMenuProviderAdded = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         requireActivity().onBackPressedDispatcher
-            .addCallback(onBackPressedCallback)
+            .addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    when (isMenuProviderAdded) {
+                        true -> {
+                            viewModel.clearSelectedMemos()
+                        }
+                        false -> {
+                            if (parentFragmentManager.backStackEntryCount != 0) {
+                                parentFragmentManager.popBackStack()
+                            } else {
+                                if (!requireActivity().isFinishing) {
+                                    requireActivity().finish()
+                                }
+                            }
+                        }
+                    }
+                }
+            })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -101,11 +98,6 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         initOnClickListener()
         fetchData()
         observeData()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        onBackPressedCallback.remove()
     }
 
     private fun initView() {
