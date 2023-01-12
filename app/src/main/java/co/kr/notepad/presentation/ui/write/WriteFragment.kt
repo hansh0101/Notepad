@@ -118,7 +118,11 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         viewModel.run {
             isErrorOccurred.observe(viewLifecycleOwner) {
                 if (it) {
-                    Toast.makeText(requireContext(), "Not saved", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.not_saved),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             memo.observe(viewLifecycleOwner) {
@@ -146,13 +150,17 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     private fun showInContextUI() {
         AlertDialog.Builder(requireContext())
-            .setTitle("권한 동의 필요")
-            .setMessage("프로필 사진 수정을 위해 갤러리 접근 권한이 필요합니다.")
-            .setPositiveButton("동의") { _, _ ->
+            .setTitle(resources.getString(R.string.need_permission))
+            .setMessage(resources.getString(R.string.need_external_storage_permission))
+            .setPositiveButton(resources.getString(R.string.agree)) { _, _ ->
                 requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
-            .setNegativeButton("거부") { _, _ ->
-                Toast.makeText(requireContext(), "갤러리 접근 권한이 없습니다.", Toast.LENGTH_SHORT).show()
+            .setNegativeButton(resources.getString(R.string.refuse)) { _, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.no_external_storage_permission),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .create()
             .show()
