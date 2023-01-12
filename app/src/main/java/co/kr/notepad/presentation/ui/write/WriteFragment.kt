@@ -2,6 +2,7 @@ package co.kr.notepad.presentation.ui.write
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -86,17 +88,22 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     private val memoTitle: String get() = binding.editTextTitle.text.toString()
     private val memoText: String get() = binding.editTextField.text.toString()
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().onBackPressedDispatcher
+            .addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    viewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
+                }
+            })
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initOnClickListener()
         fetchData()
         observeData()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
     }
 
     private fun initView() {
@@ -211,10 +218,12 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
                             }
                             is UiState.Success -> {
                                 binding.progressBar.hide()
+                                parentFragmentManager.popBackStack()
                             }
                             is UiState.Failure -> {
                                 binding.progressBar.hide()
                                 requireContext().showErrorMessage()
+                                parentFragmentManager.popBackStack()
                             }
                         }
                     }
