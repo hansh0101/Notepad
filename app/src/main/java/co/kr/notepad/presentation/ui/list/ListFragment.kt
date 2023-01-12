@@ -131,6 +131,11 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun observeData() {
+        observeMemos()
+        observeSelectedMemos()
+    }
+
+    private fun observeMemos() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -154,7 +159,13 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                         }
                     }
                 }
+            }
+        }
+    }
 
+    private fun observeSelectedMemos() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.selectedMemos.collect { uiState ->
                         when (uiState) {

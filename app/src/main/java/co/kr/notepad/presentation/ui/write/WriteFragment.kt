@@ -120,80 +120,9 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     }
 
     private fun observeData() {
-//        viewModel.run {
-//            isErrorOccurred.observe(viewLifecycleOwner) {
-//                if (it) {
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.not_saved),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-//            memo.observe(viewLifecycleOwner) {
-//                binding.editTextTitle.setText(it.title)
-//                binding.editTextField.setText(it.text)
-//            }
-//            imageUri.observe(viewLifecycleOwner) {
-//                binding.image.setImageURI(it)
-//                binding.imageClear.isVisible = it != null
-//            }
-//        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.memo.collect { uiState ->
-                        when (uiState) {
-                            is UiState.Init -> {
-                                binding.progressBar.hide()
-                            }
-                            is UiState.Loading -> {
-                                binding.progressBar.show()
-                            }
-                            is UiState.Success -> {
-                                binding.progressBar.hide()
-                                uiState.data.run {
-                                    binding.editTextTitle.setText(this.title)
-                                    binding.editTextField.setText(this.text)
-                                }
-                            }
-                            is UiState.Failure -> {
-                                binding.progressBar.hide()
-                                requireContext().showErrorMessage()
-                                parentFragmentManager.popBackStack()
-                            }
-                        }
-                    }
-
-                }
-
-                launch {
-                    viewModel.imageUri.collect { imageUri ->
-                        binding.image.setImageURI(imageUri)
-                        binding.imageClear.isVisible = imageUri != null
-                    }
-                }
-
-                launch {
-                    viewModel.isSaved.collect { uiState ->
-                        when (uiState) {
-                            is UiState.Init -> {}
-                            is UiState.Loading -> {
-                                binding.progressBar.show()
-                            }
-                            is UiState.Success -> {
-                                binding.progressBar.hide()
-                            }
-                            is UiState.Failure -> {
-                                binding.progressBar.hide()
-                                requireContext().showErrorMessage()
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        observeMemo()
+        observeImageUri()
+        observeIsSaved()
     }
 
     private fun checkSelfPermissionGranted() =
@@ -224,6 +153,74 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
             }
             .create()
             .show()
+    }
+
+    private fun observeMemo() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.memo.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                                uiState.data.run {
+                                    binding.editTextTitle.setText(this.title)
+                                    binding.editTextField.setText(this.text)
+                                }
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                                parentFragmentManager.popBackStack()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeImageUri() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.imageUri.collect { imageUri ->
+                        binding.image.setImageURI(imageUri)
+                        binding.imageClear.isVisible = imageUri != null
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeIsSaved() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.isSaved.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {}
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     companion object {
