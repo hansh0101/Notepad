@@ -12,13 +12,20 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentListBinding
 import co.kr.notepad.presentation.adapter.MemoAdapter
 import co.kr.notepad.presentation.ui.base.BaseFragment
 import co.kr.notepad.presentation.ui.write.WriteFragment
 import co.kr.notepad.presentation.viewmodel.ListViewModel
+import co.kr.notepad.presentation.viewmodel.UiState
+import co.kr.notepad.util.showErrorMessage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ListFragment : BaseFragment<FragmentListBinding>() {
@@ -27,9 +34,25 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     override val TAG: String
         get() = this::class.java.simpleName
 
-    private val listViewModel by viewModels<ListViewModel>()
-    private var _memoAdapter: MemoAdapter? = null
-    private val memoAdapter get() = _memoAdapter ?: error("adapter not initialized")
+    private val viewModel by viewModels<ListViewModel>()
+    private val memoAdapter: MemoAdapter by lazy {
+        MemoAdapter(
+            onItemClick = {
+                val isSelectMode = (memoAdapter.getSelectedItemCount() != 0)
+                if (memoAdapter.getSelectedItemCount() == 0) {
+                    parentFragmentManager.commit {
+                        replace(R.id.fcv_main, WriteFragment.newInstance(it.id))
+                        addToBackStack(null)
+                    }
+                } else {
+                    viewModel.updateSelectedMemos(it)
+                }
+                isSelectMode
+            },
+            onItemSelect = {
+                viewModel.updateSelectedMemos(it)
+            })
+    }
     private val menuProvider = (object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.menu_list, menu)
@@ -38,23 +61,19 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
             return when (menuItem.itemId) {
                 R.id.menu_delete -> {
-                    listViewModel.delete()
+                    viewModel.delete()
                     true
                 }
                 else -> false
             }
         }
     })
-    private var isMenuProviderAdded = false
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
+    private val onBackPressedCallback: OnBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when (isMenuProviderAdded) {
                     true -> {
-                        listViewModel.clearSelectedMemos()
+                        viewModel.clearSelectedMemos()
                     }
                     false -> {
                         if (parentFragmentManager.backStackEntryCount != 0) {
@@ -68,20 +87,21 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                 }
             }
         }
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
+    }
+    private var isMenuProviderAdded = false
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().onBackPressedDispatcher
+            .addCallback(onBackPressedCallback)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initOnClickListener()
-        loadData()
+        fetchData()
         observeData()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _memoAdapter = null
     }
 
     override fun onDetach() {
@@ -90,12 +110,13 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun initView() {
-        (activity as? AppCompatActivity)?.supportActionBar?.title = "Notepad"
-        initRecyclerView()
+        (requireActivity() as AppCompatActivity).supportActionBar?.title =
+            resources.getString(R.string.app_name)
+        binding.rvMemo.adapter = memoAdapter
     }
 
     private fun initOnClickListener() {
-        with(binding) {
+        binding.run {
             fabAdd.setOnClickListener {
                 parentFragmentManager.commit {
                     replace(R.id.fcv_main, WriteFragment.newInstance())
@@ -105,59 +126,84 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         }
     }
 
-    private fun loadData() {
-        listViewModel.getAll()
+    private fun fetchData() {
+        viewModel.getAll()
     }
 
     private fun observeData() {
-        with(listViewModel) {
-            memos.observe(viewLifecycleOwner) {
-                memoAdapter.updateList(it)
-            }
-            selectedMemos.observe(viewLifecycleOwner) {
-                memoAdapter.updateSelectedItems(it)
-                if (it.isNotEmpty()) {
-                    binding.fabAdd.isEnabled = false
-                    if (!isMenuProviderAdded) {
-                        isMenuProviderAdded = true
-                        addMenuProvider()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.memos.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                                memoAdapter.updateList(emptyList())
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                                memoAdapter.updateList(uiState.data)
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                            }
+                        }
                     }
-                } else {
-                    binding.fabAdd.isEnabled = true
-                    if (isMenuProviderAdded) {
-                        isMenuProviderAdded = false
-                        removeMenuProvider()
+                }
+
+                launch {
+                    viewModel.selectedMemos.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                                memoAdapter.updateSelectedItems(emptyList())
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                Timber.tag("selected memo").i("collected")
+                                binding.progressBar.hide()
+                                uiState.data.run {
+                                    memoAdapter.updateSelectedItems(this)
+                                    binding.fabAdd.isEnabled = this.isEmpty()
+                                    if (this.isEmpty()) {
+                                        removeMenuProvider()
+                                    } else {
+                                        addMenuProvider()
+                                    }
+                                }
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun initRecyclerView() {
-        _memoAdapter = MemoAdapter(
-            onItemClick = {
-                val isSelectMode = (memoAdapter.getSelectedItemCount() != 0)
-                if (memoAdapter.getSelectedItemCount() == 0) {
-                    parentFragmentManager.commit {
-                        replace(R.id.fcv_main, WriteFragment.newInstance(it.id))
-                        addToBackStack(null)
-                    }
-                } else {
-                    listViewModel.updateSelectedMemos(it)
-                }
-                isSelectMode
-            },
-            onItemSelect = {
-                listViewModel.updateSelectedMemos(it)
-            })
-        binding.rvMemo.adapter = memoAdapter
-    }
-
     private fun addMenuProvider() {
-        (requireActivity() as MenuHost).addMenuProvider(menuProvider)
+        if (!isMenuProviderAdded) {
+            isMenuProviderAdded = true
+            (requireActivity() as MenuHost).addMenuProvider(menuProvider)
+        }
     }
 
     private fun removeMenuProvider() {
-        (requireActivity() as MenuHost).removeMenuProvider(menuProvider)
+        if (isMenuProviderAdded) {
+            isMenuProviderAdded = false
+            (requireActivity() as MenuHost).removeMenuProvider(menuProvider)
+        }
+    }
+
+    companion object {
+        fun newInstance(): ListFragment = ListFragment()
     }
 }

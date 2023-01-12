@@ -21,11 +21,16 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentWriteBinding
 import co.kr.notepad.presentation.ui.base.BaseFragment
+import co.kr.notepad.presentation.viewmodel.UiState
 import co.kr.notepad.presentation.viewmodel.WriteViewModel
+import co.kr.notepad.util.showErrorMessage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class WriteFragment : BaseFragment<FragmentWriteBinding>() {
@@ -34,7 +39,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     override val TAG: String
         get() = this::class.java.simpleName
 
-    private val writeViewModel by viewModels<WriteViewModel>()
+    private val viewModel by viewModels<WriteViewModel>()
     private val menuProvider = (object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.menu_write, menu)
@@ -61,8 +66,8 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         }
     })
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            when (it) {
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
+            when (permissionGranted) {
                 true -> navigateGallery()
                 false -> Toast.makeText(
                     requireContext(),
@@ -72,9 +77,9 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
             }
         }
     private val galleryLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK && it.data != null) {
-                writeViewModel.imageUri.value = it.data?.data
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                viewModel.imageUri.value = result.data?.data
             }
         }
     private val memoId: Long by lazy { arguments?.getLong(MEMO_ID) ?: 0L }
@@ -85,19 +90,18 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initOnClickListener()
-        loadData()
+        fetchData()
         observeData()
     }
 
     override fun onStop() {
         super.onStop()
-        writeViewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
+        viewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
     }
 
     private fun initView() {
-        with((activity as? AppCompatActivity)?.supportActionBar) {
-            this?.title = "Write memo"
-        }
+        (requireActivity() as AppCompatActivity).supportActionBar?.title =
+            resources.getString(R.string.write_fragment_title)
         (requireActivity() as MenuHost).addMenuProvider(
             menuProvider,
             viewLifecycleOwner,
@@ -107,28 +111,87 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     private fun initOnClickListener() {
         binding.imageClear.setOnClickListener {
-            writeViewModel.imageUri.value = null
+            viewModel.imageUri.value = null
         }
     }
 
-    private fun loadData() {
-        writeViewModel.getMemo(memoId)
+    private fun fetchData() {
+        viewModel.getMemo(memoId)
     }
 
     private fun observeData() {
-        with(writeViewModel) {
-            isErrorOccurred.observe(viewLifecycleOwner) {
-                if (it) {
-                    Toast.makeText(requireContext(), "Not saved", Toast.LENGTH_SHORT).show()
+//        viewModel.run {
+//            isErrorOccurred.observe(viewLifecycleOwner) {
+//                if (it) {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        resources.getString(R.string.not_saved),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+//            memo.observe(viewLifecycleOwner) {
+//                binding.editTextTitle.setText(it.title)
+//                binding.editTextField.setText(it.text)
+//            }
+//            imageUri.observe(viewLifecycleOwner) {
+//                binding.image.setImageURI(it)
+//                binding.imageClear.isVisible = it != null
+//            }
+//        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.memo.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                                uiState.data.run {
+                                    binding.editTextTitle.setText(this.title)
+                                    binding.editTextField.setText(this.text)
+                                }
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                                parentFragmentManager.popBackStack()
+                            }
+                        }
+                    }
+
                 }
-            }
-            memo.observe(viewLifecycleOwner) {
-                binding.editTextTitle.setText(it.title)
-                binding.editTextField.setText(it.text)
-            }
-            imageUri.observe(viewLifecycleOwner) {
-                binding.image.setImageURI(it)
-                binding.imageClear.isVisible = it != null
+
+                launch {
+                    viewModel.imageUri.collect { imageUri ->
+                        binding.image.setImageURI(imageUri)
+                        binding.imageClear.isVisible = imageUri != null
+                    }
+                }
+
+                launch {
+                    viewModel.isSaved.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {}
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -147,13 +210,17 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
 
     private fun showInContextUI() {
         AlertDialog.Builder(requireContext())
-            .setTitle("권한 동의 필요")
-            .setMessage("프로필 사진 수정을 위해 갤러리 접근 권한이 필요합니다.")
-            .setPositiveButton("동의") { _, _ ->
+            .setTitle(resources.getString(R.string.need_permission))
+            .setMessage(resources.getString(R.string.need_external_storage_permission))
+            .setPositiveButton(resources.getString(R.string.agree)) { _, _ ->
                 requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
-            .setNegativeButton("거부") { _, _ ->
-                Toast.makeText(requireContext(), "갤러리 접근 권한이 없습니다.", Toast.LENGTH_SHORT).show()
+            .setNegativeButton(resources.getString(R.string.refuse)) { _, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.no_external_storage_permission),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .create()
             .show()
