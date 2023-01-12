@@ -18,4 +18,5 @@
     <string name="agree">동의</string>
     <string name="refuse">거부</string>
     <string name="no_external_storage_permission">갤러리 접근 권한이 없습니다.</string>
+    <string name="something_went_wrong">문제가 발생했습니다.</string>
 </resources>
