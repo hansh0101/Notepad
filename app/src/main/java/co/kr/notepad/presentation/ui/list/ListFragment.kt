@@ -6,7 +6,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
@@ -23,6 +22,7 @@ import co.kr.notepad.presentation.ui.base.BaseFragment
 import co.kr.notepad.presentation.ui.write.WriteFragment
 import co.kr.notepad.presentation.viewmodel.ListViewModel
 import co.kr.notepad.presentation.viewmodel.UiState
+import co.kr.notepad.util.showErrorMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -149,11 +149,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                             }
                             is UiState.Failure -> {
                                 binding.progressBar.hide()
-                                Toast.makeText(
-                                    requireContext(),
-                                    resources.getString(R.string.something_went_wrong),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                requireContext().showErrorMessage()
                             }
                         }
                     }
@@ -184,11 +180,7 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                             }
                             is UiState.Failure -> {
                                 binding.progressBar.hide()
-                                Toast.makeText(
-                                    requireContext(),
-                                    resources.getString(R.string.something_went_wrong),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                requireContext().showErrorMessage()
                             }
                         }
                     }

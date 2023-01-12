@@ -28,6 +28,7 @@ import co.kr.notepad.databinding.FragmentWriteBinding
 import co.kr.notepad.presentation.ui.base.BaseFragment
 import co.kr.notepad.presentation.viewmodel.UiState
 import co.kr.notepad.presentation.viewmodel.WriteViewModel
+import co.kr.notepad.util.showErrorMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -159,11 +160,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
                             }
                             is UiState.Failure -> {
                                 binding.progressBar.hide()
-                                Toast.makeText(
-                                    requireContext(),
-                                    resources.getString(R.string.something_went_wrong),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                requireContext().showErrorMessage()
                                 parentFragmentManager.popBackStack()
                             }
                         }
@@ -190,11 +187,7 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
                             }
                             is UiState.Failure -> {
                                 binding.progressBar.hide()
-                                Toast.makeText(
-                                    requireContext(),
-                                    resources.getString(R.string.something_went_wrong),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                requireContext().showErrorMessage()
                             }
                         }
                     }
