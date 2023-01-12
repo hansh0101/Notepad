@@ -6,19 +6,26 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentListBinding
 import co.kr.notepad.presentation.adapter.MemoAdapter
 import co.kr.notepad.presentation.ui.base.BaseFragment
 import co.kr.notepad.presentation.ui.write.WriteFragment
 import co.kr.notepad.presentation.viewmodel.ListViewModel
+import co.kr.notepad.presentation.viewmodel.UiState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ListFragment : BaseFragment<FragmentListBinding>() {
@@ -124,17 +131,67 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun observeData() {
-        viewModel.run {
-            memos.observe(viewLifecycleOwner) {
-                memoAdapter.updateList(it)
-            }
-            selectedMemos.observe(viewLifecycleOwner) {
-                memoAdapter.updateSelectedItems(it)
-                binding.fabAdd.isEnabled = it.isEmpty()
-                if (it.isNotEmpty()) {
-                    addMenuProvider()
-                } else {
-                    removeMenuProvider()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.memos.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                                memoAdapter.updateList(emptyList())
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                                memoAdapter.updateList(uiState.data)
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                Toast.makeText(
+                                    requireContext(),
+                                    resources.getString(R.string.something_went_wrong),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.selectedMemos.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                                memoAdapter.updateSelectedItems(emptyList())
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                Timber.tag("selected memo").i("collected")
+                                binding.progressBar.hide()
+                                uiState.data.run {
+                                    memoAdapter.updateSelectedItems(this)
+                                    binding.fabAdd.isEnabled = this.isEmpty()
+                                    if (this.isEmpty()) {
+                                        removeMenuProvider()
+                                    } else {
+                                        addMenuProvider()
+                                    }
+                                }
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                Toast.makeText(
+                                    requireContext(),
+                                    resources.getString(R.string.something_went_wrong),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
                 }
             }
         }

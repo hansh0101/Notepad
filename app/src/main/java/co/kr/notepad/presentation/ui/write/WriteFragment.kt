@@ -21,11 +21,15 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import co.kr.notepad.R
 import co.kr.notepad.databinding.FragmentWriteBinding
 import co.kr.notepad.presentation.ui.base.BaseFragment
+import co.kr.notepad.presentation.viewmodel.UiState
 import co.kr.notepad.presentation.viewmodel.WriteViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class WriteFragment : BaseFragment<FragmentWriteBinding>() {
@@ -115,23 +119,86 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     }
 
     private fun observeData() {
-        viewModel.run {
-            isErrorOccurred.observe(viewLifecycleOwner) {
-                if (it) {
-                    Toast.makeText(
-                        requireContext(),
-                        resources.getString(R.string.not_saved),
-                        Toast.LENGTH_SHORT
-                    ).show()
+//        viewModel.run {
+//            isErrorOccurred.observe(viewLifecycleOwner) {
+//                if (it) {
+//                    Toast.makeText(
+//                        requireContext(),
+//                        resources.getString(R.string.not_saved),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+//            memo.observe(viewLifecycleOwner) {
+//                binding.editTextTitle.setText(it.title)
+//                binding.editTextField.setText(it.text)
+//            }
+//            imageUri.observe(viewLifecycleOwner) {
+//                binding.image.setImageURI(it)
+//                binding.imageClear.isVisible = it != null
+//            }
+//        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.memo.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                                uiState.data.run {
+                                    binding.editTextTitle.setText(this.title)
+                                    binding.editTextField.setText(this.text)
+                                }
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                Toast.makeText(
+                                    requireContext(),
+                                    resources.getString(R.string.something_went_wrong),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                parentFragmentManager.popBackStack()
+                            }
+                        }
+                    }
+
                 }
-            }
-            memo.observe(viewLifecycleOwner) {
-                binding.editTextTitle.setText(it.title)
-                binding.editTextField.setText(it.text)
-            }
-            imageUri.observe(viewLifecycleOwner) {
-                binding.image.setImageURI(it)
-                binding.imageClear.isVisible = it != null
+
+                launch {
+                    viewModel.imageUri.collect { imageUri ->
+                        binding.image.setImageURI(imageUri)
+                        binding.imageClear.isVisible = imageUri != null
+                    }
+                }
+
+                launch {
+                    viewModel.isSaved.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {}
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                Toast.makeText(
+                                    requireContext(),
+                                    resources.getString(R.string.something_went_wrong),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
