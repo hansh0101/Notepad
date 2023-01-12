@@ -1,5 +1,6 @@
 package co.kr.notepad.presentation.ui.base
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,11 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     protected val binding get() = _binding ?: error("binding not initialized")
     abstract val layoutRes: Int
     abstract val TAG: String
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Timber.tag(TAG).i("onAttach")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,5 +47,10 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
         super.onDestroyView()
         Timber.tag(TAG).i("onDestroyView")
         _binding = null
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Timber.tag(TAG).i("onDetach")
     }
 }

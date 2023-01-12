@@ -2,6 +2,7 @@ package co.kr.notepad.presentation.ui.write
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -86,17 +88,22 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     private val memoTitle: String get() = binding.editTextTitle.text.toString()
     private val memoText: String get() = binding.editTextField.text.toString()
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().onBackPressedDispatcher
+            .addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    viewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
+                }
+            })
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initOnClickListener()
         fetchData()
         observeData()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.insertOrUpdate(memoId = memoId, title = memoTitle, text = memoText)
     }
 
     private fun initView() {
@@ -120,80 +127,9 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
     }
 
     private fun observeData() {
-//        viewModel.run {
-//            isErrorOccurred.observe(viewLifecycleOwner) {
-//                if (it) {
-//                    Toast.makeText(
-//                        requireContext(),
-//                        resources.getString(R.string.not_saved),
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-//            memo.observe(viewLifecycleOwner) {
-//                binding.editTextTitle.setText(it.title)
-//                binding.editTextField.setText(it.text)
-//            }
-//            imageUri.observe(viewLifecycleOwner) {
-//                binding.image.setImageURI(it)
-//                binding.imageClear.isVisible = it != null
-//            }
-//        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.memo.collect { uiState ->
-                        when (uiState) {
-                            is UiState.Init -> {
-                                binding.progressBar.hide()
-                            }
-                            is UiState.Loading -> {
-                                binding.progressBar.show()
-                            }
-                            is UiState.Success -> {
-                                binding.progressBar.hide()
-                                uiState.data.run {
-                                    binding.editTextTitle.setText(this.title)
-                                    binding.editTextField.setText(this.text)
-                                }
-                            }
-                            is UiState.Failure -> {
-                                binding.progressBar.hide()
-                                requireContext().showErrorMessage()
-                                parentFragmentManager.popBackStack()
-                            }
-                        }
-                    }
-
-                }
-
-                launch {
-                    viewModel.imageUri.collect { imageUri ->
-                        binding.image.setImageURI(imageUri)
-                        binding.imageClear.isVisible = imageUri != null
-                    }
-                }
-
-                launch {
-                    viewModel.isSaved.collect { uiState ->
-                        when (uiState) {
-                            is UiState.Init -> {}
-                            is UiState.Loading -> {
-                                binding.progressBar.show()
-                            }
-                            is UiState.Success -> {
-                                binding.progressBar.hide()
-                            }
-                            is UiState.Failure -> {
-                                binding.progressBar.hide()
-                                requireContext().showErrorMessage()
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        observeMemo()
+        observeImageUri()
+        observeIsSaved()
     }
 
     private fun checkSelfPermissionGranted() =
@@ -224,6 +160,76 @@ class WriteFragment : BaseFragment<FragmentWriteBinding>() {
             }
             .create()
             .show()
+    }
+
+    private fun observeMemo() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.memo.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {
+                                binding.progressBar.hide()
+                            }
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                                uiState.data.run {
+                                    binding.editTextTitle.setText(this.title)
+                                    binding.editTextField.setText(this.text)
+                                }
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                                parentFragmentManager.popBackStack()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeImageUri() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.imageUri.collect { imageUri ->
+                        binding.image.setImageURI(imageUri)
+                        binding.imageClear.isVisible = imageUri != null
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeIsSaved() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.isSaved.collect { uiState ->
+                        when (uiState) {
+                            is UiState.Init -> {}
+                            is UiState.Loading -> {
+                                binding.progressBar.show()
+                            }
+                            is UiState.Success -> {
+                                binding.progressBar.hide()
+                                parentFragmentManager.popBackStack()
+                            }
+                            is UiState.Failure -> {
+                                binding.progressBar.hide()
+                                requireContext().showErrorMessage()
+                                parentFragmentManager.popBackStack()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     companion object {

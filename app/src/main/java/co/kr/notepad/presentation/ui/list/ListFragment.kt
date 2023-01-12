@@ -25,7 +25,6 @@ import co.kr.notepad.presentation.viewmodel.UiState
 import co.kr.notepad.util.showErrorMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @AndroidEntryPoint
 class ListFragment : BaseFragment<FragmentListBinding>() {
@@ -68,32 +67,29 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
             }
         }
     })
-    private val onBackPressedCallback: OnBackPressedCallback by lazy {
-        object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                when (isMenuProviderAdded) {
-                    true -> {
-                        viewModel.clearSelectedMemos()
-                    }
-                    false -> {
-                        if (parentFragmentManager.backStackEntryCount != 0) {
-                            parentFragmentManager.popBackStack()
-                        } else {
-                            if (!requireActivity().isFinishing) {
-                                requireActivity().finish()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
     private var isMenuProviderAdded = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         requireActivity().onBackPressedDispatcher
-            .addCallback(onBackPressedCallback)
+            .addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    when (isMenuProviderAdded) {
+                        true -> {
+                            viewModel.clearSelectedMemos()
+                        }
+                        false -> {
+                            if (parentFragmentManager.backStackEntryCount != 0) {
+                                parentFragmentManager.popBackStack()
+                            } else {
+                                if (!requireActivity().isFinishing) {
+                                    requireActivity().finish()
+                                }
+                            }
+                        }
+                    }
+                }
+            })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -102,11 +98,6 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
         initOnClickListener()
         fetchData()
         observeData()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        onBackPressedCallback.remove()
     }
 
     private fun initView() {
@@ -131,6 +122,11 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun observeData() {
+        observeMemos()
+        observeSelectedMemos()
+    }
+
+    private fun observeMemos() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -154,7 +150,13 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                         }
                     }
                 }
+            }
+        }
+    }
 
+    private fun observeSelectedMemos() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.selectedMemos.collect { uiState ->
                         when (uiState) {
@@ -166,7 +168,6 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                                 binding.progressBar.show()
                             }
                             is UiState.Success -> {
-                                Timber.tag("selected memo").i("collected")
                                 binding.progressBar.hide()
                                 uiState.data.run {
                                     memoAdapter.updateSelectedItems(this)

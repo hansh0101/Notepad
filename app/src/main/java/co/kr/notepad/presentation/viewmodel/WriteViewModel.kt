@@ -45,6 +45,8 @@ class WriteViewModel @Inject constructor(
                             _isSaved.emit(UiState.Failure(it))
                         }
                 }
+            } else {
+                _isSaved.value = UiState.Success(Unit)
             }
         }
     }
