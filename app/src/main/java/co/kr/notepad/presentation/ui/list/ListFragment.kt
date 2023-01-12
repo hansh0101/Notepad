@@ -25,7 +25,6 @@ import co.kr.notepad.presentation.viewmodel.UiState
 import co.kr.notepad.util.showErrorMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @AndroidEntryPoint
 class ListFragment : BaseFragment<FragmentListBinding>() {
@@ -177,7 +176,6 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
                                 binding.progressBar.show()
                             }
                             is UiState.Success -> {
-                                Timber.tag("selected memo").i("collected")
                                 binding.progressBar.hide()
                                 uiState.data.run {
                                     memoAdapter.updateSelectedItems(this)
